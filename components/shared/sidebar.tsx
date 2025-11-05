@@ -10,7 +10,7 @@ const Sidebar = () => {
   const items = [
     { label: "Dashboard", path: "/dashboard" },
     { label: "Clients", path: "/clients" },
-    { label: "Income", path: "/income" },
+    { label: "Income", path: "/login" },
     { label: "Help", path: "/help" },
   ];
 
