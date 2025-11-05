@@ -67,31 +67,6 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen bg-gray-50 text-gray-800">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r flex flex-col justify-between">
-        <div>
-          <div className="p-6 text-2xl font-bold text-gray-900">Dashboard</div>
-          <nav className="px-4 space-y-2">
-            <SidebarItem label="Dashboard" />
-            <SidebarItem label="Product" />
-            <SidebarItem label="Customers" active />
-            <SidebarItem label="Income" />
-            <SidebarItem label="Promote" />
-            <SidebarItem label="Help" />
-          </nav>
-        </div>
-
-        {/* Bottom profile section */}
-        <div className="p-4 border-t flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-semibold">
-            E
-          </div>
-          <div>
-            <p className="font-semibold">Evano</p>
-            <p className="text-sm text-gray-500">Project Manager</p>
-          </div>
-        </div>
-      </aside>
 
       {/* Main content */}
       <main className="flex-1 p-8">
@@ -184,25 +159,5 @@ export default function Home() {
         </div>
       </main>
     </div>
-  );
-}
-
-function SidebarItem({
-  label,
-  active = false,
-}: {
-  label: string;
-  active?: boolean;
-}) {
-  return (
-    <button
-      className={`flex w-full px-4 py-2 rounded-xl text-sm font-medium transition ${
-        active
-          ? "bg-indigo-100 text-indigo-700"
-          : "text-gray-600 hover:bg-gray-100"
-      }`}
-    >
-      {label}
-    </button>
   );
 }
