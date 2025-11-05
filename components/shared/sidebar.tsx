@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 
 const Sidebar = () => {
@@ -8,10 +9,8 @@ const Sidebar = () => {
 
   const items = [
     { label: "Dashboard", path: "/dashboard" },
-    { label: "Product", path: "/product" },
-    { label: "Customers", path: "/customers" },
+    { label: "Clients", path: "/clients" },
     { label: "Income", path: "/income" },
-    { label: "Promote", path: "/promote" },
     { label: "Help", path: "/help" },
   ];
 
@@ -20,7 +19,9 @@ const Sidebar = () => {
     <aside className="w-64 h-screen sticky top-0 bg-white border-r flex flex-col">
       {/* top area grows and becomes scrollable if there are many items */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-6 text-2xl font-bold text-gray-900">Dashboard</div>
+        <Link href={"/"}>
+          <div className="p-6 text-2xl font-bold text-gray-900">Customer Journey</div>
+        </Link>
         <nav className="px-4 space-y-2">
           {items.map((item) => (
             <SidebarItem
