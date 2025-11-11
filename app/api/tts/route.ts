@@ -4,7 +4,7 @@ const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY
 const ELEVENLABS_TTS_URL = 'https://api.elevenlabs.io/v1/text-to-speech'
 
 // Default model and voice (you can replace with yours)
-const DEFAULT_VOICE_ID = 'JBFqnCBsd6RMkjVDRZzb' // Example: Adam voice
+const DEFAULT_VOICE_ID = 'Xb7hH8MSUJpSbSDYk0k2' // Alice voice
 const DEFAULT_MODEL_ID = 'eleven_multilingual_v2'
 
 export async function POST(req: NextRequest) {
