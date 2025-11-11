@@ -3,194 +3,146 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getUserById, login } from "@/services/database/users";
+import { AIInteraction } from "@/components/ui/ai-interaction";
 
-const page = () => {
-//   const { data, isLoading, error } = useQuery({
-//     queryKey: ["user"],
-//     queryFn: () => getUserById("user_001"),
-//   });
+type Status = "idle" | "listening" | "processing" | "speaking";
 
-//   const {
-//     data: loginData,
-//     error: loginError,
-//     isLoading: loginLoading,
-//   } = useQuery({
-//     queryKey: ["loginStatus"],
-//     queryFn: () =>
-//       login("sarah.mitchell@techventure.com", "hashed_password_456"),
-//   });
-
-  // Recording state
-  const [recording, setRecording] = useState(false);
-  const [permissionGranted, setPermissionGranted] = useState(false);
+const AIPage = () => {
+  const [status, setStatus] = useState<Status>("idle");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [finalAudioUrl, setFinalAudioUrl] = useState<string | null>(null);
-  const [metadata, setMetadata] = useState<any>(null);
-
-  // immediate response audio path (public folder)
-  const immediateAudioPath = "/audios/immediate_response_audio.mp3";
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const isCancelledRef = useRef(false);
 
   useEffect(() => {
     return () => {
-      // cleanup streams
       mediaRecorderRef.current?.stream.getTracks().forEach((t) => t.stop());
       mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
     };
   }, []);
 
   const startRecording = async () => {
+    isCancelledRef.current = false;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      setPermissionGranted(true);
       mediaStreamRef.current = stream;
-      const options: MediaRecorderOptions = { mimeType: "audio/webm" } as any;
-      const mr = new MediaRecorder(stream, options);
-      chunksRef.current = [];
+      const mr = new MediaRecorder(stream, { mimeType: "audio/webm" });
 
       mr.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
+        if (e.data.size > 0) chunksRef.current.push(e.data);
       };
 
-      mr.onstop = async () => {
+      mr.onstop = () => {
+        if (isCancelledRef.current) return;
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        // Submit automatically on stop
-        await submitRecording(blob);
+        submitRecording(blob);
       };
 
       mediaRecorderRef.current = mr;
+      chunksRef.current = [];
       mr.start();
-      setRecording(true);
+      setStatus("listening");
     } catch (err) {
       console.error("Microphone permission error", err);
-      setPermissionGranted(false);
     }
   };
 
   const stopRecording = () => {
-    if (
-      mediaRecorderRef.current &&
-      mediaRecorderRef.current.state !== "inactive"
-    ) {
+    if (mediaRecorderRef.current?.state === "recording") {
       mediaRecorderRef.current.stop();
     }
-    setRecording(false);
-    // stop tracks
-    mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
-    mediaStreamRef.current = null;
   };
 
   const cancelRecording = () => {
-    if (mediaRecorderRef.current) {
-      if (mediaRecorderRef.current.state !== "inactive")
-        mediaRecorderRef.current.stop();
+    isCancelledRef.current = true;
+    if (mediaRecorderRef.current?.state === "recording") {
+      mediaRecorderRef.current.stop();
     }
     chunksRef.current = [];
-    setRecording(false);
+    setStatus("idle");
     mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
-    mediaStreamRef.current = null;
   };
 
   const submitRecording = async (blob: Blob) => {
+    setStatus("processing");
     try {
-      setLoading(true);
+      // Wait 1 second before playing the first audio
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Play immediate response audio (user initiated -> should be allowed by browser autoplay rules)
-      try {
-        const immediateAudio = new Audio(immediateAudioPath);
-        // try/catch because some browsers might block autoplay in some contexts
-        await immediateAudio.play().catch(() => {
-          // ignore play errors
-        });
-      } catch (e) {
-        // ignore
-      }
-
-      // send blob to server API which will run the workflow
-      const res = await fetch("/api/ai-workflow", {
+      const fetchPromise = fetch("/api/ai-workflow", {
         method: "POST",
-        headers: {
-          "Content-Type": blob.type || "application/octet-stream",
-        },
+        headers: { "Content-Type": "audio/webm" },
         body: blob,
+      }).then((res) => {
+        if (!res.ok) throw new Error("Server error");
+        return res.blob();
       });
 
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(`Server error: ${res.status} - ${txt}`);
-      }
-
-      // response is audio bytes
-      const arrayBuffer = await res.arrayBuffer();
-      const audioBlob = new Blob([arrayBuffer], {
-        type: res.headers.get("content-type") || "audio/mpeg",
+      const immediateAudio = new Audio("/audios/immediate_response_audio.mp3");
+      const immediateAudioPromise = new Promise<void>((resolve) => {
+        immediateAudio.onended = () => resolve();
+        immediateAudio.play().catch((e) => {
+          console.error("Immediate audio playback failed", e);
+          resolve(); // Resolve even if playback fails
+        });
+        setStatus("speaking");
       });
+
+      const [audioBlob] = await Promise.all([
+        fetchPromise,
+        immediateAudioPromise,
+      ]);
+
+      setStatus("processing");
+
+      // Wait 2 seconds between audios
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       const url = URL.createObjectURL(audioBlob);
-      setFinalAudioUrl(url);
 
-      // play the final audio
-      try {
-        const a = new Audio(url);
-        await a.play().catch(() => {});
-      } catch (e) {
-        // ignore
+      if (audioRef.current) {
+        audioRef.current.src = url;
+        setStatus("speaking");
+        audioRef.current.play();
+      } else {
+        setStatus("idle");
       }
-
-      setLoading(false);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Submit recording error", err);
-      setLoading(false);
+      setStatus("idle");
     }
   };
 
-//   if (isLoading || loginLoading) return <div>Loading...</div>;
-//   if (error || loginError) return <div>Error loading user data</div>;
+  useEffect(() => {
+    const audio = new Audio();
+    audioRef.current = audio;
+
+    const handleAudioEnd = () => setStatus("idle");
+    audio.addEventListener("ended", handleAudioEnd);
+
+    return () => {
+      audio.removeEventListener("ended", handleAudioEnd);
+    };
+  }, []);
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>AI Assistant</h1>
-      <p>
-        {/* Logged user: {(data as any)?.email ?? (data as any)?.id ?? "user_001"} */}
-        Logged user: user_001
-      </p>
-
-      <div style={{ marginTop: 12 }}>
-        {!recording ? (
-          <button
-            onClick={startRecording}
-            style={{ padding: "8px 12px", marginRight: 8 }}
-            aria-pressed={recording}
-          >
-            Start Recording
-          </button>
-        ) : (
-          <>
-            <button
-              onClick={stopRecording}
-              style={{ padding: "8px 12px", marginRight: 8 }}
-            >
-              Stop & Submit
-            </button>
-            <button onClick={cancelRecording} style={{ padding: "8px 12px" }}>
-              Cancel
-            </button>
-          </>
-        )}
+    <div className="w-full h-full flex flex-col items-center justify-center gap-10">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold">AI Assistant</h1>
+        <p className="text-gray-500">
+          Click the microphone to start a conversation.
+        </p>
       </div>
-
-      <div style={{ marginTop: 16 }}>
-        {loading && <div>Processing...</div>}
-        {finalAudioUrl && (
-          <div>
-            <p>Assistant response:</p>
-            <audio controls src={finalAudioUrl} />
-          </div>
-        )}
-      </div>
+      <AIInteraction
+        status={status}
+        onStart={startRecording}
+        onStop={stopRecording}
+        onCancel={cancelRecording}
+      />
     </div>
   );
 };
 
-export default page;
+export default AIPage;
+
