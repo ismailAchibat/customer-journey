@@ -16,7 +16,7 @@ const Sidebar = () => {
     { label: "Agenda", path: "/agenda" },
     { label: "Tâches", path: "/tasks" },
     { label: "Événements", path: "/events" },
-    { label: "Quick Action (IA)", path: "/quick-action" },
+    { label: "Quick Action (IA)", path: "/ai-assistant" },
     { label: "Paramètres", path: "/settings" },
     { label: "Aide", path: "/help" },
   ];
@@ -73,8 +73,8 @@ function SidebarItem({
     <button
       onClick={onClick}
       className={`flex w-full px-4 py-2 rounded-xl text-sm font-medium transition ${active
-          ? "bg-indigo-100 text-indigo-700"
-          : "text-gray-600 hover:bg-gray-100"
+        ? "bg-indigo-100 text-indigo-700"
+        : "text-gray-600 hover:bg-gray-100"
         }`}
     >
       {label}
