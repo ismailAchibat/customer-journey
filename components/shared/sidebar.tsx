@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 
 const Sidebar = () => {
@@ -9,15 +10,15 @@ const Sidebar = () => {
 
   // === Navigation adaptée au projet Customer Journey ===
   const items = [
-    { label: "Tableau de bord", path: "/dashboard" },
-    { label: "Clients", path: "/clients" },
-    { label: "Utilisateurs", path: "/users" },
-    { label: "Messagerie", path: "/messages" },
-    { label: "Agenda", path: "/agenda" },
-    { label: "Projets", path: "/projects" },
-    { label: "Quick Action (IA)", path: "/ai-assistant" },
-    { label: "Paramètres", path: "/settings" },
-    { label: "Aide", path: "/help" },
+    { label: "Tableau de bord", path: "/dashboard", icon: "/icons/dashboard.png" },
+    { label: "Clients", path: "/clients", icon: "/icons/clients.png" },
+    { label: "Utilisateurs", path: "/users", icon: "/icons/users.png" },
+    { label: "Messagerie", path: "/messages", icon: "/icons/message.png" },
+    { label: "Agenda", path: "/agenda", icon: "/icons/calendar.png" },
+    { label: "Projets", path: "/projects", icon: "/icons/projects.png" },
+    { label: "Quick Action (IA)", path: "/ai-assistant", icon: "/icons/ai.png" },
+    { label: "Paramètres", path: "/settings", icon: "/icons/settings.png" },
+    { label: "Aide", path: "/help", icon: "/icons/help.png" },
   ];
 
   return (
@@ -25,17 +26,25 @@ const Sidebar = () => {
       {/* Zone haute : logo + titre */}
       <div className="flex-1 overflow-y-auto">
         <Link href={"/"}>
-          <div className="p-6 text-2xl font-bold text-gray-900">
-            Customer Journey
+          <div className="flex items-center gap-3 p-6">
+            <Image
+              src="/logos.png"
+              alt="Logo"
+              width={36}
+              height={36}
+              className="rounded-lg"
+            />
+            <span className="text-2xl font-bold text-gray-900">Customer Journey</span>
           </div>
         </Link>
 
         {/* Liste de navigation */}
-        <nav className="px-4 space-y-2">
+        <nav className="px-3 space-y-1">
           {items.map((item) => (
             <SidebarItem
               key={item.path}
               label={item.label}
+              icon={item.icon}
               active={pathname === item.path}
               onClick={() => router.push(item.path)}
             />
@@ -63,23 +72,33 @@ const Sidebar = () => {
 
 export default Sidebar;
 
+/* --- Élément de navigation individuel --- */
 function SidebarItem({
   label,
-  active = false,
+  icon,
+  active,
   onClick,
 }: {
   label: string;
+  icon: string;
   active?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`flex w-full px-4 py-2 rounded-xl text-sm font-medium transition ${active
-        ? "bg-indigo-100 text-indigo-700"
-        : "text-gray-600 hover:bg-gray-100"
+      className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition ${active
+          ? "bg-indigo-100 text-indigo-700"
+          : "text-gray-700 hover:bg-gray-100"
         }`}
     >
+      <Image
+        src={icon}
+        alt={`${label} icon`}
+        width={18}
+        height={18}
+        className="opacity-80"
+      />
       {label}
     </button>
   );
