@@ -7,26 +7,23 @@ export const organisations = pgTable('organisations', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-export const users = pgTable('users', {
-  id: text('id').primaryKey(),
-  full_name: text('full_name').notNull(),
-  email: text('email').notNull(),
-  password: text('password').notNull(),
-  teamRole: text('team_role'),
-  organisationId: text('organisation_id').notNull().references(() => organisations.id),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+export const users = pgTable("users", {
+  id: text("id").primaryKey(),
+  full_name: text("full_name").notNull(),
+  email: text("email").notNull(),
+  role: text("role").default("user"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const clients = pgTable('clients', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  company: text('company'),
-  phoneNumber: text('phone_number'),
-  email: text('email'),
-  country: text('country'),
-  status: text('status'),
-  organisationId: text('organisation_id').notNull().references(() => organisations.id),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+export const clients = pgTable("clients", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  company: text("company").notNull(),
+  phone_number: text("phone_number").notNull(),
+  email: text("email").notNull(),
+  country: text("country").notNull(),
+  status: text("status").$type<"prospect" | "actif" | "inactif">().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const deals = pgTable('deals', {
@@ -54,15 +51,12 @@ export const chats = pgTable('chats', {
   sentAt: timestamp('sent_at').defaultNow().notNull(),
 });
 
-export const Projects= pgTable('Projet' ,{
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  clientId: text('client_id').notNull().references(() => clients.id),
-  ownerId: text('owner_id').notNull().references(() => users.id),
-  responsableId : text('responsable_id').notNull().references(() => users.id),
-  statut : text('statut').notNull(),
-  progression: integer('progression'),
-  createdAt: timestamp('created_at').defaultNow().notNull()
-
-
+export const projects = pgTable("projects", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  clientId: text("client_id").notNull().references(() => clients.id),
+  responsableId: text("responsable_id").notNull().references(() => users.id),
+  statut: text("statut").notNull().default("en_cours"),
+  progression: integer("progression").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
