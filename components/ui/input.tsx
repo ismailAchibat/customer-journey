@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils"
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
     <input
+      // FIX ADDED HERE: Ensures value is always a string, resolving the error.
+      value={props.value ?? ""}
       type={type}
       data-slot="input"
       className={cn(
