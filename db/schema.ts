@@ -54,6 +54,7 @@ export const chats = pgTable('chats', {
   sentAt: timestamp('sent_at').defaultNow().notNull(),
 });
 
+
 export const Projects= pgTable('Projet' ,{
   id: text('id').primaryKey(),
   name: text('name').notNull(),

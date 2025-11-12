@@ -1,9 +1,111 @@
 {
-  "id": "0036a629-b88f-4dcf-ba09-1fc5545e06aa",
-  "prevId": "841de97e-b727-4d1e-ae65-f7078414bc2b",
+  "id": "48b58fe8-1fd9-485e-8c1d-178a352df2f8",
+  "prevId": "0036a629-b88f-4dcf-ba09-1fc5545e06aa",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.Projet": {
+      "name": "Projet",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "client_id": {
+          "name": "client_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "responsable_id": {
+          "name": "responsable_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "statut": {
+          "name": "statut",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "progression": {
+          "name": "progression",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "Projet_client_id_clients_id_fk": {
+          "name": "Projet_client_id_clients_id_fk",
+          "tableFrom": "Projet",
+          "tableTo": "clients",
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Projet_owner_id_users_id_fk": {
+          "name": "Projet_owner_id_users_id_fk",
+          "tableFrom": "Projet",
+          "tableTo": "users",
+          "columnsFrom": [
+            "owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Projet_responsable_id_users_id_fk": {
+          "name": "Projet_responsable_id_users_id_fk",
+          "tableFrom": "Projet",
+          "tableTo": "users",
+          "columnsFrom": [
+            "responsable_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.calendar": {
       "name": "calendar",
       "schema": "",
