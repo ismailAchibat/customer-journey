@@ -14,7 +14,7 @@ const Sidebar = () => {
     { label: "Utilisateurs", path: "/users" },
     { label: "Messagerie", path: "/messages" },
     { label: "Agenda", path: "/agenda" },
-    { label: "Tâches", path: "/tasks" },
+    { label: "Projets", path: "/projects" },
     { label: "Événements", path: "/events" },
     { label: "Quick Action (IA)", path: "/ai-assistant" },
     { label: "Paramètres", path: "/settings" },
