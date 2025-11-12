@@ -74,3 +74,8 @@ export const addClient = async (input: AddClientInput) => {
   const [created] = await db.insert(clients).values(values).returning();
   return created;
 };
+export async function getClients() {
+    const rows = await db.select().from(clients).orderBy(desc(clients.createdAt));
+    return rows;
+  }
+  
