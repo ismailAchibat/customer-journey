@@ -1,5 +1,4 @@
-import EventManager from "@/components/event-manager";
-
+import { EventManager } from "@/components/event-manager";
 export default function AgendaPage() {
   return (
     <div className="p-6">

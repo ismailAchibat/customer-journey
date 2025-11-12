@@ -6,13 +6,13 @@ import { useRouter, usePathname } from "next/navigation";
 const Sidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
-
   const items = [
-    { label: "Dashboard", path: "/dashboard" },
-    { label: "Clients", path: "/clients" },
-    { label: "Income", path: "/login" },
-    { label: "Help", path: "/help" },
-  ];
+  { label: "Dashboard", path: "/dashboard" },
+  { label: "Clients", path: "/clients" },
+  { label: "Agenda", path: "/agenda" }, 
+  { label: "Income", path: "/login" },
+  { label: "Help", path: "/help" },
+];
 
   return (
     // make the aside exactly the viewport height and stick it to the top
