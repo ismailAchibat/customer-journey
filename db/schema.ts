@@ -1,5 +1,5 @@
 import { or } from 'drizzle-orm';
-import { date, integer, numeric, pgTable, serial, text, time, timestamp } from 'drizzle-orm/pg-core';
+import { date, integer, numeric, pgTable, serial, text, time, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const organisations = pgTable('organisations', {
   id: text('id').primaryKey(),
@@ -40,8 +40,8 @@ export const deals = pgTable('deals', {
 export const calendar = pgTable('calendar', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull().references(() => users.id),
-  clientId: text('client_id').notNull().references(() => clients.id),
-  subject: text('subject').notNull(),
+  client_name: text('client_name'),
+  subject: text('subject'),
   date: date('date').notNull(),
   time: time('time').notNull(),
   duration: integer('duration'), // duration in minutes
@@ -53,6 +53,7 @@ export const chats = pgTable('chats', {
   toUserId: text('to_user_id').notNull().references(() => users.id),
   sentAt: timestamp('sent_at').defaultNow().notNull(),
 });
+
 
 export const Projects= pgTable('Projet' ,{
   id: text('id').primaryKey(),

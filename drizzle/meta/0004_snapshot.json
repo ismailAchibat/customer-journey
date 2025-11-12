@@ -1,6 +1,6 @@
 {
-  "id": "c022ba0c-3fd4-40c3-8cd6-8d7b47acfa9b",
-  "prevId": "ee6afbaf-84f0-4f54-af75-4a017e5913ec",
+  "id": "48b58fe8-1fd9-485e-8c1d-178a352df2f8",
+  "prevId": "0036a629-b88f-4dcf-ba09-1fc5545e06aa",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -122,17 +122,17 @@
           "primaryKey": false,
           "notNull": true
         },
-        "client_id": {
-          "name": "client_id",
+        "client_name": {
+          "name": "client_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "subject": {
           "name": "subject",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "date": {
           "name": "date",
@@ -161,19 +161,6 @@
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "calendar_client_id_clients_id_fk": {
-          "name": "calendar_client_id_clients_id_fk",
-          "tableFrom": "calendar",
-          "tableTo": "clients",
-          "columnsFrom": [
-            "client_id"
           ],
           "columnsTo": [
             "id"

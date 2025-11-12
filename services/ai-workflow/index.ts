@@ -1,4 +1,4 @@
-import { getCalendarEventsById } from "@/services/database/calendar";
+import { addCalendarEvent, getCalendarEventsById } from "@/services/database/calendar";
 
 const INTERNAL_API_BASE =
   process.env.INTERNAL_API_BASE ||
@@ -81,6 +81,7 @@ export type RunAiWorkflowResult =
       ok: true;
       audio: ArrayBuffer;
       audioContentType: string;
+      text: string;
       metadata: any;
     }
   | {
@@ -166,6 +167,16 @@ export async function runAiWorkflow(opts: {
         error: "Failed to parse scheduling JSON from Mistral response",
       };
 
+    const addToCalendarTable = addCalendarEvent({
+      subject: finalJson.subject,
+      client_name: finalJson.client_name,
+      date: finalJson.date,
+      time: finalJson.time,
+      duration: finalJson.duration,
+    })
+
+    console.log("[ai-workflow] added event to calendar Table:", addToCalendarTable);
+
     // 4) Convert natural_response to speech
     const natural =
       finalJson?.natural_response ?? finalJson?.naturalResponse ?? null;
@@ -183,6 +194,7 @@ export async function runAiWorkflow(opts: {
       ok: true,
       audio: audioBuffer,
       audioContentType: "audio/mpeg",
+      text: natural,
       metadata: finalJson,
     };
   } catch (err: any) {
