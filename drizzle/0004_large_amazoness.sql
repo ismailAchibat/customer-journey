@@ -1,0 +1,1 @@
+ALTER TABLE "calendar" ALTER COLUMN "subject" DROP NOT NULL;

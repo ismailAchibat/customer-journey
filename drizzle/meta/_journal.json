@@ -22,6 +22,20 @@
       "when": 1762857644467,
       "tag": "0002_brave_jackal",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1762942353971,
+      "tag": "0003_youthful_kate_bishop",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1762942783666,
+      "tag": "0004_large_amazoness",
+      "breakpoints": true
     }
   ]
 }
