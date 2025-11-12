@@ -7,11 +7,22 @@ const Sidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Navigation CRM
   const items = [
-    { label: "Dashboard", path: "/dashboard" },
-    { label: "Clients", path: "/clients" },
-    { label: "Income", path: "/login" },
-    { label: "Help", path: "/help" },
+    { label: "Tableau de bord", path: "/dashboard" },
+    { label: "Prospects", path: "/leads" },
+    { label: "Contacts", path: "/contacts" },
+    { label: "Comptes", path: "/accounts" },
+    { label: "Opportunités", path: "/opportunities" },
+    { label: "Devis", path: "/quotes" },
+    { label: "Factures", path: "/invoices" },
+    { label: "Produits", path: "/products" },
+    { label: "Activités", path: "/activities" },
+    { label: "Calendrier", path: "/calendar" },
+    { label: "Campagnes", path: "/campaigns" },
+    { label: "Rapports", path: "/reports" },
+    { label: "Aide", path: "/help" },
+    { label: "Paramètres", path: "/settings" },
   ];
 
   return (
@@ -62,11 +73,10 @@ function SidebarItem({
   return (
     <button
       onClick={onClick}
-      className={`flex w-full px-4 py-2 rounded-xl text-sm font-medium transition ${
-        active
+      className={`flex w-full px-4 py-2 rounded-xl text-sm font-medium transition ${active
           ? "bg-indigo-100 text-indigo-700"
           : "text-gray-600 hover:bg-gray-100"
-      }`}
+        }`}
     >
       {label}
     </button>

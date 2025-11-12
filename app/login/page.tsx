@@ -13,7 +13,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen">
       {/* === Section gauche (bleue) === */}
-      <div className="hidden lg:flex w-1/2 bg-blue-600 text-white items-center justify-center">
+      <div className="hidden lg:flex w-1/2 bg-[#5A8DEE] text-white items-center justify-center">
         <div className="max-w-md text-center p-10">
           {/* Logo */}
           <div className="flex justify-center items-center mb-8">
@@ -21,7 +21,7 @@ export default function LoginPage() {
               <div className="bg-white rounded-md p-2">
                 <Image
                   src="/logo.svg"
-                  alt="Woorkroom Logo"
+                  alt="Logo Woorkroom"
                   width={30}
                   height={30}
                 />
@@ -31,14 +31,14 @@ export default function LoginPage() {
           </div>
 
           {/* Texte principal */}
-          <h1 className="text-3xl font-bold mb-3">Your place to work</h1>
-          <p className="text-xl font-medium">Plan. Create. Control.</p>
+          <h1 className="text-3xl font-bold mb-3">Votre espace de travail</h1>
+          <p className="text-xl font-medium">Planifiez. Créez. Contrôlez.</p>
 
           {/* Illustration */}
           <div className="mt-10">
             <Image
-              src="/illustration-login.svg"
-              alt="Login Illustration"
+              src="/illustration-login.png"
+              alt="Illustration de connexion"
               width={400}
               height={300}
               priority
@@ -51,26 +51,26 @@ export default function LoginPage() {
       <div className="flex w-full lg:w-1/2 bg-white items-center justify-center">
         <div className="w-full max-w-md px-8 py-12">
           <h2 className="text-2xl font-semibold text-gray-900 text-center mb-8">
-            Sign In to Woorkroom
+            Connexion à Woorkroom
           </h2>
 
           <form className="space-y-5">
             {/* Email */}
             <div>
               <label className="text-sm text-gray-600 mb-1 block">
-                Email Address
+                Adresse e-mail
               </label>
               <Input
                 type="email"
-                placeholder="youremail@gmail.com"
+                placeholder="votreemail@gmail.com"
                 className="border-gray-300"
               />
             </div>
 
-            {/* Password */}
+            {/* Mot de passe */}
             <div>
               <label className="text-sm text-gray-600 mb-1 block">
-                Password
+                Mot de passe
               </label>
               <div className="relative">
                 <Input
@@ -96,26 +96,26 @@ export default function LoginPage() {
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-gray-600">
                 <input type="checkbox" className="accent-blue-600" />
-                Remember me
+                Se souvenir de moi
               </label>
               <Link href="#" className="text-blue-600 hover:underline">
-                Forgot Password?
+                Mot de passe oublié ?
               </Link>
             </div>
 
             {/* Bouton connexion */}
             <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full bg-[#5A8DEE] hover:bg-[#4E73DF] text-white"
             >
-              Sign In →
+              Se connecter →
             </Button>
 
             {/* Lien inscription */}
             <p className="text-center text-sm text-gray-600 mt-4">
-              Don’t have an account?{" "}
+              Vous n’avez pas encore de compte ?{" "}
               <Link href="/register" className="text-blue-600 hover:underline">
-                Sign up
+                Inscrivez-vous
               </Link>
             </p>
           </form>
