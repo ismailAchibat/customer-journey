@@ -7,8 +7,9 @@ import { AIInteraction } from "@/components/ui/ai-interaction";
 
 type Status = "idle" | "listening" | "processing" | "speaking";
 
-const AIPage = () => {
+export default function AIPage() {
   const [status, setStatus] = useState<Status>("idle");
+  const [messages, setMessages] = useState<any[]>([]);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -24,6 +25,7 @@ const AIPage = () => {
 
   const startRecording = async () => {
     isCancelledRef.current = false;
+    setMessages([]);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
@@ -61,6 +63,7 @@ const AIPage = () => {
     }
     chunksRef.current = [];
     setStatus("idle");
+    setMessages([]);
     mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
   };
 
@@ -74,9 +77,12 @@ const AIPage = () => {
         method: "POST",
         headers: { "Content-Type": "audio/webm" },
         body: blob,
-      }).then((res) => {
+      }).then(async (res) => {
         if (!res.ok) throw new Error("Server error");
-        return res.blob();
+        const formData = await res.formData();
+        const audioBlob = formData.get("audio") as Blob;
+        const text = formData.get("text") as string;
+        return { audioBlob, text };
       });
 
       const immediateAudio = new Audio("/audios/immediate_response_audio.mp3");
@@ -87,9 +93,15 @@ const AIPage = () => {
           resolve(); // Resolve even if playback fails
         });
         setStatus("speaking");
+        setMessages([
+          {
+            id: 1,
+            text: "D'accord, je suis en train de vérifier votre calendrier pour trouver un créneau disponible.",
+          },
+        ]);
       });
 
-      const [audioBlob] = await Promise.all([
+      const [{ audioBlob, text }] = await Promise.all([
         fetchPromise,
         immediateAudioPromise,
       ]);
@@ -104,6 +116,7 @@ const AIPage = () => {
       if (audioRef.current) {
         audioRef.current.src = url;
         setStatus("speaking");
+        setMessages((prev) => [...prev, { id: 2, text }]);
         audioRef.current.play();
       } else {
         setStatus("idle");
@@ -118,7 +131,9 @@ const AIPage = () => {
     const audio = new Audio();
     audioRef.current = audio;
 
-    const handleAudioEnd = () => setStatus("idle");
+    const handleAudioEnd = () => {
+      setStatus("idle");
+    };
     audio.addEventListener("ended", handleAudioEnd);
 
     return () => {
@@ -139,10 +154,9 @@ const AIPage = () => {
         onStart={startRecording}
         onStop={stopRecording}
         onCancel={cancelRecording}
+        messages={messages}
       />
     </div>
   );
 };
-
-export default AIPage;
 

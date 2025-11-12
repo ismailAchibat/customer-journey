@@ -21,12 +21,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return new NextResponse(result.audio, {
+    const formData = new FormData();
+    formData.append(
+      "audio",
+      new Blob([result.audio], { type: result.audioContentType }),
+      "ai-response.mp3"
+    );
+    formData.append("text", result.text);
+
+    return new NextResponse(formData, {
       status: 200,
-      headers: {
-        "Content-Type": result.audioContentType || "audio/mpeg",
-        "Content-Disposition": "inline; filename=ai-response.mp3",
-      },
     });
   } catch (err: any) {
     return NextResponse.json(

@@ -5,6 +5,11 @@ import { Search, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog, DialogTrigger, DialogContent, DialogHeader,
+  DialogTitle, DialogFooter
+} from "@/components/ui/dialog";
+import { addClient } from "@/services/database/clients";
 
 // Type conforme à la DB
 type Client = {
@@ -18,43 +23,45 @@ type Client = {
   createdAt: string; // ISO
 };
 
-// Données mock alignées sur la DB (tu brancheras ensuite Drizzle)
-const CLIENTS: Client[] = [
-  {
-    id: "CL-001",
-    name: "Jean Dupont",
-    company: "Acme Corp",
-    phone_number: "+33 6 11 22 33 44",
-    email: "jean.dupont@acme.com",
-    country: "France",
-    status: "actif",
-    createdAt: "2025-01-20T10:00:00Z",
-  },
-  {
-    id: "CL-002",
-    name: "Aïcha Konaté",
-    company: "NovaTech",
-    phone_number: "+221 77 123 45 67",
-    email: "aicha@novatech.io",
-    country: "Sénégal",
-    status: "prospect",
-    createdAt: "2025-02-02T09:30:00Z",
-  },
-  {
-    id: "CL-003",
-    name: "Carlos Mendes",
-    company: "Startup.io",
-    phone_number: "+351 912 345 678",
-    email: "carlos@startup.io",
-    country: "Portugal",
-    status: "inactif",
-    createdAt: "2024-11-15T14:10:00Z",
-  },
+// Données mock alignées sur la DB 
+type DbClientRow = {
+  id: string;
+  name: string;
+  company: string | null;
+  phoneNumber: string | null;
+  email: string | null;
+  country: string | null;
+  status: "prospect" | "actif" | "inactif" | null;
+  createdAt: Date | string;
+};
+
+// ⚠️ Remplace ceci par ton vrai tableau issu de la requête (props, fetch, etc.)
+const DB_CLIENTS: DbClientRow[] = [
+  // ...tes lignes DB ici
 ];
+
+// Variable utilisée par la page (même API qu’avant)
+const CLIENTS: Client[] = DB_CLIENTS.map((r) => ({
+  id: r.id,
+  name: r.name,
+  company: r.company ?? "",
+  phone_number: r.phoneNumber ?? "",
+  email: r.email ?? "",
+  country: r.country ?? "",
+  status: (r.status ?? "prospect"),
+  createdAt:
+    typeof r.createdAt === "string"
+      ? r.createdAt
+      : r.createdAt.toISOString(),
+}));
+
 
 export default function ClientsPage() {
   const [search, setSearch] = useState("");
   const [sortNewest, setSortNewest] = useState(true);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [saving, setSaving] = useState(false);
+
 
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
@@ -114,6 +121,80 @@ export default function ClientsPage() {
                 {filtered.filter((c) => c.status === "actif").length} actifs
               </p>
             </div>
+            <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+            <DialogTrigger asChild>
+              <Button className="bg-indigo-600 text-white hover:bg-indigo-700">
+                Nouveau client
+              </Button>
+            </DialogTrigger>
+
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Nouveau client</DialogTitle>
+              </DialogHeader>
+
+              {/* Formulaire + appel à addClient */}
+              <form
+                className="grid gap-3"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const fd = new FormData(e.currentTarget);
+
+                  try {
+                    setSaving(true);
+                    await addClient({
+                      name: String(fd.get("name") || ""),
+                      company: String(fd.get("company") || ""),
+                      phoneNumber: String(fd.get("phoneNumber") || ""),
+                      email: String(fd.get("email") || ""),
+                      country: String(fd.get("country") || ""),
+                      status: (fd.get("status") as "prospect" | "actif" | "inactif") || "prospect",
+                      organisationId: "org_001", // ← remplace par l'ID réel
+                    });
+
+                    // reset + close
+                    (e.currentTarget as HTMLFormElement).reset();
+                    setOpenDialog(false);
+                  } catch (err) {
+                    console.error(err);
+                    alert("Erreur lors de l’ajout du client.");
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+              >
+                <input name="name" className="h-10 rounded-lg border px-3" placeholder="Nom" required />
+                <input name="company" className="h-10 rounded-lg border px-3" placeholder="Société" />
+                <input name="phoneNumber" className="h-10 rounded-lg border px-3" placeholder="Téléphone" />
+                <input name="email" type="email" className="h-10 rounded-lg border px-3" placeholder="Email" />
+                <input name="country" className="h-10 rounded-lg border px-3" placeholder="Pays" />
+                <select name="status" className="h-10 rounded-lg border px-3" defaultValue="prospect">
+                  <option value="prospect">prospect</option>
+                  <option value="actif">actif</option>
+                  <option value="inactif">inactif</option>
+                </select>
+
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setOpenDialog(false)}
+                    disabled={saving}
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={saving}
+                    className="bg-indigo-600 text-white hover:bg-indigo-700"
+                  >
+                    {saving ? "Enregistrement..." : "Enregistrer"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+
             <Button
               variant="outline"
               size="sm"
@@ -122,6 +203,8 @@ export default function ClientsPage() {
               Trier : {sortNewest ? "Plus récents" : "Plus anciens"}
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
+            
+            
           </div>
 
           <table className="w-full text-left text-sm">

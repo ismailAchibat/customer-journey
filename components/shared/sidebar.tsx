@@ -16,7 +16,7 @@ const Sidebar = () => {
     { label: "Messagerie", path: "/messages", icon: "/icons/message.png" },
     { label: "Agenda", path: "/agenda", icon: "/icons/calendar.png" },
     { label: "Projets", path: "/projects", icon: "/icons/projects.png" },
-    { label: "Quick Action (IA)", path: "/ai-assistant", icon: "/icons/ai.png" },
+    { label: "Assistant IA", path: "/ai-assistant", icon: "/icons/ai.png" },
     { label: "Paramètres", path: "/settings", icon: "/icons/settings.png" },
     { label: "Aide", path: "/help", icon: "/icons/help.png" },
   ];
