@@ -53,3 +53,16 @@ export const chats = pgTable('chats', {
   toUserId: text('to_user_id').notNull().references(() => users.id),
   sentAt: timestamp('sent_at').defaultNow().notNull(),
 });
+
+export const Projects= pgTable('Projet' ,{
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  clientId: text('client_id').notNull().references(() => clients.id),
+  ownerId: text('owner_id').notNull().references(() => users.id),
+  responsableId : text('responsable_id').notNull().references(() => users.id),
+  statut : text('statut').notNull(),
+  progression: integer('progression'),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+
+
+});
