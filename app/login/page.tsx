@@ -3,12 +3,51 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
+import { useUserStore } from "@/hooks/use-user-store";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { setUser, setOrganizationId } = useUserStore();
+  const router = useRouter();
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to login");
+      }
+
+      setUser(data.user);
+      setOrganizationId(data.user.organizationId);
+      router.push("/dashboard");
+    } catch (err) {
+      const error = err as Error;
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen">
@@ -54,16 +93,18 @@ export default function LoginPage() {
             Connexion à Woorkroom
           </h2>
 
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
               <label className="text-sm text-gray-600 mb-1 block">
                 Adresse e-mail
               </label>
               <Input
+                name="email"
                 type="email"
                 placeholder="votreemail@gmail.com"
                 className="border-gray-300"
+                required
               />
             </div>
 
@@ -74,9 +115,11 @@ export default function LoginPage() {
               </label>
               <div className="relative">
                 <Input
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   className="border-gray-300 pr-10"
+                  required
                 />
                 <button
                   type="button"
@@ -91,6 +134,8 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
+
+            {error && <p className="text-sm text-red-500">{error}</p>}
 
             {/* Options */}
             <div className="flex items-center justify-between text-sm">
@@ -107,8 +152,9 @@ export default function LoginPage() {
             <Button
               type="submit"
               className="w-full bg-[#5A8DEE] hover:bg-[#4E73DF] text-white"
+              disabled={loading}
             >
-              Se connecter →
+              {loading ? "Connexion..." : "Se connecter →"}
             </Button>
 
             {/* Lien inscription */}

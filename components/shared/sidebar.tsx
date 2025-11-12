@@ -3,10 +3,25 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
+import { useUserStore } from "@/hooks/use-user-store";
+import { LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Sidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { setUser } = useUserStore();
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (error) {
+      console.error("Failed to logout on server", error);
+    } finally {
+      setUser(null);
+      router.push("/login");
+    }
+  };
 
   // === Navigation adaptée au projet Customer Journey ===
   const items = [
@@ -53,19 +68,28 @@ const Sidebar = () => {
       </div>
 
       {/* Profil utilisateur (bas de la sidebar) */}
-      <Link
-        href="/profile"
-        className="p-4 border-t flex items-center gap-3 hover:bg-gray-50 transition"
-      >
-        <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-semibold">
-          E
-        </div>
-        <div>
-          <p className="font-semibold text-gray-900">Evano</p>
-          <p className="text-sm text-gray-500">Chef de projet</p>
-          <p className="text-[11px] text-indigo-700 underline">Voir le profil</p>
-        </div>
-      </Link>
+      <div className="p-4 border-t">
+        <Link
+          href="/profile"
+          className="w-full flex items-center gap-3 hover:bg-gray-50 transition rounded-md p-2"
+        >
+          <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-semibold">
+            E
+          </div>
+          <div>
+            <p className="font-semibold text-gray-900">Evano</p>
+            <p className="text-sm text-gray-500">Chef de projet</p>
+          </div>
+        </Link>
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50 mt-2"
+          onClick={handleLogout}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Se deconnecter
+        </Button>
+      </div>
     </aside>
   );
 };
