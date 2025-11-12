@@ -6,11 +6,14 @@ import { cn } from "@/lib/utils";
 
 type Status = "idle" | "listening" | "processing" | "speaking";
 
+type Status = "idle" | "listening" | "processing" | "speaking";
+
 interface AIInteractionProps {
   status: Status;
   onStart: () => void;
   onStop: () => void;
   onCancel: () => void;
+  messages: { id: number; text: string }[];
   className?: string;
 }
 
@@ -19,6 +22,7 @@ export function AIInteraction({
   onStart,
   onStop,
   onCancel,
+  messages,
   className,
 }: AIInteractionProps) {
   const [isClient, setIsClient] = useState(false);
@@ -44,7 +48,9 @@ export function AIInteraction({
           <div className="relative w-40 h-40">
             <div className="w-full h-full rounded-full border-4 border-gray-300 border-t-4 border-t-purple-500 animate-spin" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-sm font-semibold text-purple-500">Processing</p>
+              <p className="text-sm font-semibold text-purple-500">
+                Processing
+              </p>
             </div>
           </div>
         );
@@ -54,7 +60,7 @@ export function AIInteraction({
             <div className="absolute inset-0 rounded-full bg-green-500/20 animate-ping" />
             <div className="absolute inset-0 rounded-full bg-green-500/30 animate-pulse" />
             <div className="absolute inset-4 rounded-full bg-green-500 flex items-center justify-center">
-                <p className="text-sm font-semibold text-white">Speaking</p>
+              <p className="text-sm font-semibold text-white">Speaking</p>
             </div>
           </div>
         );
@@ -72,9 +78,9 @@ export function AIInteraction({
   };
 
   return (
-    <div className={cn("w-full flex flex-col items-center gap-8", className)}>
+    <div className={cn("w-full flex flex-col items-center gap-4", className)}>
       <Circle />
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 h-10">
         {status === "listening" && (
           <>
             <button
@@ -93,6 +99,16 @@ export function AIInteraction({
             </button>
           </>
         )}
+      </div>
+      <div className="w-full max-w-md flex flex-col gap-3">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg shadow-sm animate-in fade-in duration-500"
+          >
+            <p className="text-gray-800 dark:text-gray-200">{msg.text}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -13,3 +13,27 @@ export const getCalendarEventsById = async (user_id: string) => {
   }
   return events;
 };
+
+
+export const addCalendarEvent = async ( calendarEvent: {
+  subject: string;
+  client_name?: string;
+  date: string;
+  time: string;
+  duration?: number;
+}) => {
+  const newEvent = await db
+    .insert(calendar)
+    .values({
+      id: crypto.randomUUID(),
+      date: calendarEvent.date,
+      time: calendarEvent.time,
+      subject: calendarEvent.subject,
+      client_name: calendarEvent.client_name,
+      duration: calendarEvent.duration,
+      userId: "user_002",
+    })
+    .returning();
+
+  return newEvent[0];
+}
