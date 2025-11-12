@@ -15,7 +15,6 @@ const Sidebar = () => {
     { label: "Messagerie", path: "/messages" },
     { label: "Agenda", path: "/agenda" },
     { label: "Projets", path: "/projects" },
-    { label: "Événements", path: "/events" },
     { label: "Quick Action (IA)", path: "/ai-assistant" },
     { label: "Paramètres", path: "/settings" },
     { label: "Aide", path: "/help" },
@@ -45,15 +44,19 @@ const Sidebar = () => {
       </div>
 
       {/* Profil utilisateur (bas de la sidebar) */}
-      <div className="p-4 border-t flex items-center gap-3">
+      <Link
+        href="/profile"
+        className="p-4 border-t flex items-center gap-3 hover:bg-gray-50 transition"
+      >
         <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-semibold">
           E
         </div>
         <div>
-          <p className="font-semibold">Evano</p>
+          <p className="font-semibold text-gray-900">Evano</p>
           <p className="text-sm text-gray-500">Chef de projet</p>
+          <p className="text-[11px] text-indigo-700 underline">Voir le profil</p>
         </div>
-      </div>
+      </Link>
     </aside>
   );
 };
