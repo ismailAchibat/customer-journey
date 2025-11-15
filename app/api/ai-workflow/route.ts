@@ -4,15 +4,28 @@ import { runAiWorkflow } from "@/services/ai-workflow";
 export async function POST(req: NextRequest) {
   try {
     const userId = "user_002"; // adapt as needed or extract from auth
+    const contentType = req.headers.get("content-type") || "";
 
-    const contentType = req.headers.get("content-type") || "audio/webm";
-    const arrayBuffer = await req.arrayBuffer();
-
-    const result = await runAiWorkflow({
-      userId,
-      audio: arrayBuffer,
-      audioContentType: contentType,
-    });
+    let result;
+    if (contentType.includes("application/json")) {
+      const { transcription } = await req.json();
+      result = await runAiWorkflow({
+        userId,
+        transcription,
+      });
+    } else if (contentType.includes("audio")) {
+      const arrayBuffer = await req.arrayBuffer();
+      result = await runAiWorkflow({
+        userId,
+        audio: arrayBuffer,
+        audioContentType: contentType,
+      });
+    } else {
+      return NextResponse.json(
+        { ok: false, error: "Unsupported content-type" },
+        { status: 400 }
+      );
+    }
 
     if (!result.ok) {
       return NextResponse.json(

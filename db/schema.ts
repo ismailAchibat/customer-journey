@@ -7,12 +7,14 @@ export const organisations = pgTable('organisations', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-export const users = pgTable("users", {
-  id: text("id").primaryKey(),
-  full_name: text("full_name").notNull(),
-  email: text("email").notNull(),
-  role: text("role").default("user"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+export const users = pgTable('users', {
+  id: text('id').primaryKey(),
+  full_name: text('full_name').notNull(),
+  email: text('email').notNull(),
+  password: text('password').notNull(),
+  teamRole: text('team_role'),
+  organisationId: text('organisation_id').notNull().references(() => organisations.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 export const clients = pgTable("clients", {

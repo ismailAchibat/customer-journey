@@ -70,35 +70,46 @@ export default function AIPage() {
   const submitRecording = async (blob: Blob) => {
     setStatus("processing");
     try {
-      // Wait 1 second before playing the first audio
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const fetchPromise = fetch("/api/ai-workflow", {
+      // First, get the language and transcription
+      const langResponse = await fetch("/api/ai-workflow/start", {
         method: "POST",
         headers: { "Content-Type": "audio/webm" },
         body: blob,
+      });
+      if (!langResponse.ok) throw new Error("Language detection failed");
+      const { language, transcription } = await langResponse.json();
+
+      // Now we know the language, play the immediate response
+      const immediateAudioFile = language.toLowerCase().includes('french') 
+        ? "/audios/immediate_response_audio_francais.mp3"
+        : "/audios/immediate_response_audio_english.mp3";
+      
+      const immediateMessage = language.toLowerCase().includes('french')
+        ? "D'accord, je suis en train de vérifier votre calendrier pour trouver un créneau disponible."
+        : "Okay, I'm checking your calendar to find an available slot.";
+
+      const immediateAudio = new Audio(immediateAudioFile);
+      const immediateAudioPromise = new Promise<void>((resolve) => {
+        immediateAudio.onended = () => resolve();
+        immediateAudio.play().catch((e) => {
+          console.error("Immediate audio playback failed", e);
+          resolve();
+        });
+        setStatus("speaking");
+        setMessages([{ id: 1, text: immediateMessage }]);
+      });
+
+      // In parallel, get the final response from the workflow
+      const fetchPromise = fetch("/api/ai-workflow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }, // Sending JSON now
+        body: JSON.stringify({ transcription }), // Sending transcription
       }).then(async (res) => {
         if (!res.ok) throw new Error("Server error");
         const formData = await res.formData();
         const audioBlob = formData.get("audio") as Blob;
         const text = formData.get("text") as string;
         return { audioBlob, text };
-      });
-
-      const immediateAudio = new Audio("/audios/immediate_response_audio.mp3");
-      const immediateAudioPromise = new Promise<void>((resolve) => {
-        immediateAudio.onended = () => resolve();
-        immediateAudio.play().catch((e) => {
-          console.error("Immediate audio playback failed", e);
-          resolve(); // Resolve even if playback fails
-        });
-        setStatus("speaking");
-        setMessages([
-          {
-            id: 1,
-            text: "D'accord, je suis en train de vérifier votre calendrier pour trouver un créneau disponible.",
-          },
-        ]);
       });
 
       const [{ audioBlob, text }] = await Promise.all([

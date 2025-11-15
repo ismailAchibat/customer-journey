@@ -112,7 +112,7 @@ export async function runAiWorkflow(opts: {
     }
 
     // 1) Parse the user's voice command into minimal JSON
-    const parsePrompt = `Extract the calendar intent from this command as a JSON object with exactly these keys: subject, client_name, duration. Use ISO-like/simple values and keep values concise. Command: "${textCommand.replace(
+    const parsePrompt = `Extract the calendar intent from this command as a JSON object with exactly these keys: subject, client_name, duration, language. "language" should be the detected language of the command (e.g., "English", "French"). Use ISO-like/simple values and keep values concise. Command: "${textCommand.replace(
       /\"/g,
       '\\"'
     )}"`;
@@ -145,7 +145,8 @@ export async function runAiWorkflow(opts: {
 
     // 3) Ask Mistral to pick a date/time and return a confirmatory JSON + natural response
     const calendarStr = JSON.stringify(events.slice(0, 30));
-    const schedulePrompt = `You are given an intent JSON and the user's upcoming calendar events (as JSON array). Choose the next available slot that fits the requested duration and return a JSON object with keys: natural_response, subject, client_name, date, time, duration. natural_response should be a short sentence confirming when you'll add the event and any relevant details. IMPORTANT: The natural_response MUST be written in FRENCH and use common French date/time expressions (for example: "lundi prochain à 10h", "mardi 14/07 à 15h30"). Return ONLY the JSON object (no extra commentary). Intent: ${JSON.stringify(
+    const language = parsed.language || "French";
+    const schedulePrompt = `You are given an intent JSON and the user's upcoming calendar events (as JSON array). Choose the next available slot that fits the requested duration and return a JSON object with keys: natural_response, subject, client_name, date, time, duration. natural_response should be a short sentence confirming when you'll add the event and any relevant details. IMPORTANT: The natural_response MUST be written in ${language} and use common ${language} date/time expressions. Return ONLY the JSON object (no extra commentary). Intent: ${JSON.stringify(
       parsed
     )}; Events: ${calendarStr}`;
 
@@ -199,6 +200,49 @@ export async function runAiWorkflow(opts: {
     };
   } catch (err: any) {
     console.error("[ai-workflow] runAiWorkflow error:", err);
+    return { ok: false, error: err?.message ?? String(err) };
+  }
+}
+
+export async function getLanguageAndTranscription(opts: {
+  audio?: ArrayBuffer;
+  audioContentType?: string;
+}): Promise<{ok: true, language: string, transcription: string} | {ok: false, error: string}> {
+  try {
+    const { audio, audioContentType } = opts;
+    if (!audio) return { ok: false, error: "Missing audio" };
+
+    const textCommand = await callStt(audio, audioContentType);
+    console.log("[ai-workflow] STT transcription:", textCommand);
+
+    // This is duplicated from runAiWorkflow. Maybe I can refactor it.
+    const parsePrompt = `Extract the calendar intent from this command as a JSON object with exactly these keys: subject, client_name, duration, language. "language" should be the detected language of the command (e.g., "English", "French"). Use ISO-like/simple values and keep values concise. Command: "${textCommand.replace(
+      /\"/g,
+      '\\"'
+    )}"`;
+    const parseContent = await callMistral(parsePrompt);
+    console.log("[ai-workflow] parseContent from Mistral:", parseContent);
+    const parsed =
+      extractFirstJson(parseContent) ??
+      (() => {
+        try {
+          return JSON.parse(parseContent);
+        } catch {
+          return null;
+        }
+      })();
+    console.log("[ai-workflow] parsed intent:", parsed);
+    if (!parsed)
+      return {
+        ok: false,
+        error: "Failed to parse intent JSON from Mistral response",
+      };
+
+    const language = parsed.language || 'French';
+
+    return { ok: true, language, transcription: textCommand };
+  } catch (err: any) {
+    console.error("[ai-workflow] getLanguageAndTranscription error:", err);
     return { ok: false, error: err?.message ?? String(err) };
   }
 }
