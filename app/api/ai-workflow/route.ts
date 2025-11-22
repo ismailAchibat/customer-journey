@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runAiWorkflow } from "@/services/ai-workflow";
+import { useUserStore } from "@/hooks/use-user-store";
 
 export async function POST(req: NextRequest) {
+  const user = useUserStore((state) => state.user);
   try {
-    const userId = "user_002"; // adapt as needed or extract from auth
+    const userId = user?.id || "user_002"; // adapt as needed or extract from auth
     const contentType = req.headers.get("content-type") || "";
 
     let result;

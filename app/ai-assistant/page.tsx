@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUserById, login } from "@/services/database/users";
 import { AIInteraction } from "@/components/ui/ai-interaction";
+import { useUserStore } from "@/hooks/use-user-store";
 
 type Status = "idle" | "listening" | "processing" | "speaking";
 
@@ -15,6 +16,8 @@ export default function AIPage() {
   const chunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isCancelledRef = useRef(false);
+  const queryClient = useQueryClient();
+  const user = useUserStore((state) => state.user);
 
   useEffect(() => {
     return () => {
@@ -132,6 +135,8 @@ export default function AIPage() {
       } else {
         setStatus("idle");
       }
+
+      await queryClient.invalidateQueries({ queryKey: ["calendarEvents", user?.id] });
     } catch (err) {
       console.error("Submit recording error", err);
       setStatus("idle");

@@ -1275,46 +1275,43 @@ function WeekView({
           </div>
         ))}
       </div>
-    <div className="grid grid-cols-8">
-    {hours.map((hour) => (
-      // 1. CHANGE: Replaced <> with <div> and added key={hour}
-      <div key={hour} className="contents">
-        <div
-          // This key is already fine, but it's now nested inside the key={hour} parent
-          key={`time-${hour}`}
-          className="border-b border-r p-1 text-[10px] text-muted-foreground sm:p-2 sm:text-xs"
-        >
-          {hour.toString().padStart(2, "0")}:00
-        </div>
-        {weekDays.map((day) => {
-          const dayEvents = getEventsForDayAndHour(day, hour)
-          return (
+      <div className="grid grid-cols-8">
+        {hours.map((hour) => (
+          <>
             <div
-              key={`${day.toISOString()}-${hour}`} // This key is also correct
-              className="min-h-12 border-b border-r p-0.5 transition-colors hover:bg-accent/50 last:border-r-0 sm:min-h-16 sm:p-1"
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => onDrop(day, hour)}
+              key={`time-${hour}`}
+              className="border-b border-r p-1 text-[10px] text-muted-foreground sm:p-2 sm:text-xs"
             >
-              <div className="space-y-1">
-                {dayEvents.map((event) => (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    onEventClick={onEventClick}
-                    onDragStart={onDragStart}
-                    onDragEnd={onDragEnd}
-                    getColorClasses={getColorClasses}
-                    variant="default"
-                  />
-                ))}
-              </div>
+              {hour.toString().padStart(2, "0")}:00
             </div>
-          )
-        })}
-      {/* 2. CHANGE: Replaced </> with </div> */}
+            {weekDays.map((day) => {
+              const dayEvents = getEventsForDayAndHour(day, hour)
+              return (
+                <div
+                  key={`${day.toISOString()}-${hour}`}
+                  className="min-h-12 border-b border-r p-0.5 transition-colors hover:bg-accent/50 last:border-r-0 sm:min-h-16 sm:p-1"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => onDrop(day, hour)}
+                >
+                  <div className="space-y-1">
+                    {dayEvents.map((event) => (
+                      <EventCard
+                        key={event.id}
+                        event={event}
+                        onEventClick={onEventClick}
+                        onDragStart={onDragStart}
+                        onDragEnd={onDragEnd}
+                        getColorClasses={getColorClasses}
+                        variant="default"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </>
+        ))}
       </div>
-    ))}
-  </div>
     </Card>
   )
 }
