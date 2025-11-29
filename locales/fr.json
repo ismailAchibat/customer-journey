@@ -94,5 +94,7 @@
   "signupDate": "Date d’inscription",
   "actions": "Actions",
   "view": "Voir",
-  "edit": "Modifier"
+  "edit": "Modifier",
+  "loading": "Chargement...",
+  "error": "Erreur"
 }

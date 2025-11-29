@@ -33,13 +33,14 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
+      console.log("Login response data:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Failed to login");
       }
 
       setUser(data.user);
-      setOrganizationId(data.user.organizationId);
+      setOrganizationId(data.user.organisationId);
       router.push("/dashboard");
     } catch (err) {
       const error = err as Error;

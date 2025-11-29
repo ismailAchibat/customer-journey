@@ -26,6 +26,7 @@ export const clients = pgTable("clients", {
   country: text("country").notNull(),
   status: text("status").$type<"prospect" | "actif" | "inactif">().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  organisation_id: text("organisation_id").notNull().references(() => organisations.id),
 });
 
 export const deals = pgTable('deals', {

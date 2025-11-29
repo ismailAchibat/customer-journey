@@ -94,5 +94,7 @@
   "signupDate": "Signup Date",
   "actions": "Actions",
   "view": "View",
-  "edit": "Edit"
+  "edit": "Edit",
+  "loading": "Loading...",
+  "error": "Error"
 }

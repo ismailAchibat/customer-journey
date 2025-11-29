@@ -9,8 +9,10 @@ import {
   Dialog, DialogTrigger, DialogContent, DialogHeader,
   DialogTitle, DialogFooter
 } from "@/components/ui/dialog";
-import { addClient } from "@/services/database/clients";
+import { addClient, getClientsByOrgID } from "@/services/database/clients";
 import { useI18n } from "@/app/context/i18n";
+import { useUserStore } from "@/hooks/use-user-store";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // Type conforme à la DB
 type Client = {
@@ -24,55 +26,55 @@ type Client = {
   createdAt: string; // ISO
 };
 
-// Données mock alignées sur la DB 
-type DbClientRow = {
-  id: string;
-  name: string;
-  company: string | null;
-  phoneNumber: string | null;
-  email: string | null;
-  country: string | null;
-  status: "prospect" | "actif" | "inactif" | null;
-  createdAt: Date | string;
-};
-
-// ⚠️ Remplace ceci par ton vrai tableau issu de la requête (props, fetch, etc.)
-const DB_CLIENTS: DbClientRow[] = [
-  // ...tes lignes DB ici
-];
-
-// Variable utilisée par la page (même API qu’avant)
-const CLIENTS: Client[] = DB_CLIENTS.map((r) => ({
-  id: r.id,
-  name: r.name,
-  company: r.company ?? "",
-  phone_number: r.phoneNumber ?? "",
-  email: r.email ?? "",
-  country: r.country ?? "",
-  status: (r.status ?? "prospect"),
-  createdAt:
-    typeof r.createdAt === "string"
-      ? r.createdAt
-      : r.createdAt.toISOString(),
-}));
-
-
 export default function ClientsPage() {
   const { t } = useI18n();
-  const [search, setSearch] = useState("");
-  const [sortNewest, setSortNewest] = useState(true);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [saving, setSaving] = useState(false);
+    const queryClient = useQueryClient();
+    const organisationId = useUserStore((state) => state.organizationId);
+  
+    const [search, setSearch] = useState("");
+    const [sortNewest, setSortNewest] = useState(true);
+    const [openDialog, setOpenDialog] = useState(false);
+  
+    const { data: clients = [], isLoading, error } = useQuery<Client[]> ({
+      queryKey: ["clients", organisationId],
+      queryFn: async () => {
+        if (!organisationId) return [];
+        const dbClients = await getClientsByOrgID(organisationId);
+        // data mapping
+        return dbClients.map((c: any) => ({
+          ...c,
+          company: c.company ?? "",
+          phone_number: c.phone_number ?? "",
+          email: c.email ?? "",
+          country: c.country ?? "",
+          createdAt: c.createdAt.toISOString(),
+        }));
+      },
+      enabled: !!organisationId,
+    });
+    console.log("Organisation ID:", organisationId);
+    console.log("Clients data:", clients);
 
+  const addClientMutation = useMutation({
+    mutationFn: addClient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients", organisationId] });
+      setOpenDialog(false);
+    },
+    onError: (err) => {
+      console.error(err);
+      alert(t('addClientError'));
+    },
+  });
 
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
-    let rows = CLIENTS;
+    let rows = clients;
     if (s) {
       rows = rows.filter(
-        (c) =>
+        (c: Client) =>
           c.name.toLowerCase().includes(s) ||
-          c.company.toLowerCase().includes(s) ||
+          (c.company && c.company.toLowerCase().includes(s)) ||
           c.email.toLowerCase().includes(s) ||
           c.phone_number.toLowerCase().includes(s) ||
           c.country.toLowerCase().includes(s) ||
@@ -85,7 +87,7 @@ export default function ClientsPage() {
         : +new Date(a.createdAt) - +new Date(b.createdAt)
     );
     return rows;
-  }, [search, sortNewest]);
+  }, [search, sortNewest, clients]);
 
   const badgeClass = (status: Client["status"]) =>
     status === "actif"
@@ -93,6 +95,23 @@ export default function ClientsPage() {
       : status === "prospect"
         ? "bg-gray-100 text-gray-700"
         : "bg-red-100 text-red-700";
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    if (!organisationId) return;
+
+    addClientMutation.mutate({
+      name: String(fd.get("name") || ""),
+      company: String(fd.get("company") || ""),
+      phone_number: String(fd.get("phoneNumber") || ""),
+      email: String(fd.get("email") || ""),
+      country: String(fd.get("country") || ""),
+      status: (fd.get("status") as "prospect" | "actif" | "inactif") || "prospect",
+      organisation_id: organisationId,
+    });
+    (e.currentTarget as HTMLFormElement).reset();
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50 text-gray-800">
@@ -135,35 +154,9 @@ export default function ClientsPage() {
                 <DialogTitle>{t('newClient')}</DialogTitle>
               </DialogHeader>
 
-              {/* Formulaire + appel à addClient */}
               <form
                 className="grid gap-3"
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const fd = new FormData(e.currentTarget);
-
-                  try {
-                    setSaving(true);
-                    await addClient({
-                      name: String(fd.get("name") || ""),
-                      company: String(fd.get("company") || ""),
-                      phoneNumber: String(fd.get("phoneNumber") || ""),
-                      email: String(fd.get("email") || ""),
-                      country: String(fd.get("country") || ""),
-                      status: (fd.get("status") as "prospect" | "actif" | "inactif") || "prospect",
-                      organisationId: "org_001", // ← remplace par l'ID réel
-                    });
-
-                    // reset + close
-                    (e.currentTarget as HTMLFormElement).reset();
-                    setOpenDialog(false);
-                  } catch (err) {
-                    console.error(err);
-                    alert(t('addClientError'));
-                  } finally {
-                    setSaving(false);
-                  }
-                }}
+                onSubmit={handleFormSubmit}
               >
                 <input name="name" className="h-10 rounded-lg border px-3" placeholder={t('name')} required />
                 <input name="company" className="h-10 rounded-lg border px-3" placeholder={t('company')} />
@@ -181,16 +174,16 @@ export default function ClientsPage() {
                     type="button"
                     variant="outline"
                     onClick={() => setOpenDialog(false)}
-                    disabled={saving}
+                    disabled={addClientMutation.isPending}
                   >
                     {t('cancel')}
                   </Button>
                   <Button
                     type="submit"
-                    disabled={saving}
+                    disabled={addClientMutation.isPending}
                     className="bg-indigo-600 text-white hover:bg-indigo-700"
                   >
-                    {saving ? t('saving') : t('save')}
+                    {addClientMutation.isPending ? t('saving') : t('save')}
                   </Button>
                 </DialogFooter>
               </form>
@@ -209,38 +202,40 @@ export default function ClientsPage() {
             
           </div>
 
-          <table className="w-full text-left text-sm">
-            <thead className="bg-gray-100 text-gray-600">
-              <tr>
-                <th className="px-6 py-3">{t('id')}</th>
-                <th className="px-6 py-3">{t('name')}</th>
-                <th className="px-6 py-3">{t('company')}</th>
-                <th className="px-6 py-3">{t('phone')}</th>
-                <th className="px-6 py-3">{t('email')}</th>
-                <th className="px-6 py-3">{t('country')}</th>
-                <th className="px-6 py-3">{t('createdAt')}</th>
-                <th className="px-6 py-3 text-center">{t('status')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((c) => (
-                <tr key={c.id} className="border-t hover:bg-gray-50">
-                  <td className="px-6 py-4">{c.id}</td>
-                  <td className="px-6 py-4">{c.name}</td>
-                  <td className="px-6 py-4">{c.company}</td>
-                  <td className="px-6 py-4">{c.phone_number}</td>
-                  <td className="px-6 py-4">{c.email}</td>
-                  <td className="px-6 py-4">{c.country}</td>
-                  <td className="px-6 py-4">
-                    {new Date(c.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <Badge className={badgeClass(c.status)}>{c.status}</Badge>
-                  </td>
+          {isLoading && <div className="p-6">{t('loading')}</div>}
+          {error && <div className="p-6 text-red-500">{t('error')}: {error.message}</div>}
+          {!isLoading && !error && (
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-100 text-gray-600">
+                <tr>
+                  <th className="px-6 py-3">{t('name')}</th>
+                  <th className="px-6 py-3">{t('company')}</th>
+                  <th className="px-6 py-3">{t('phone')}</th>
+                  <th className="px-6 py-3">{t('email')}</th>
+                  <th className="px-6 py-3">{t('country')}</th>
+                  <th className="px-6 py-3">{t('createdAt')}</th>
+                  <th className="px-6 py-3 text-center">{t('status')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((c) => (
+                  <tr key={c.id} className="border-t hover:bg-gray-50">
+                    <td className="px-6 py-4">{c.name}</td>
+                    <td className="px-6 py-4">{c.company}</td>
+                    <td className="px-6 py-4">{c.phone_number}</td>
+                    <td className="px-6 py-4">{c.email}</td>
+                    <td className="px-6 py-4">{c.country}</td>
+                    <td className="px-6 py-4">
+                      {new Date(c.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <Badge className={badgeClass(c.status)}>{c.status}</Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
 
           {/* Pagination (statique pour l’instant) */}
           <div className="flex items-center justify-end gap-2 border-t px-6 py-4 text-sm">
