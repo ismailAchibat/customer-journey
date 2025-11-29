@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useI18n } from "@/app/context/i18n";
 
 // Schéma Chat (mock) – j'ajoute un champ 'content' pour le message
 type ChatMessage = {
@@ -37,6 +38,7 @@ const CONVERSATIONS: Conversation[] = [
 const ME = "Alice Martin"; // utilisateur courant (mock)
 
 export default function MessagesPage() {
+    const { t } = useI18n();
     const [selectedId, setSelectedId] = useState<string>(CONVERSATIONS[0].id);
     const [draft, setDraft] = useState("");
 
@@ -63,9 +65,9 @@ export default function MessagesPage() {
             {/* Liste des conversations */}
             <aside className="border-r bg-white">
                 <div className="p-4">
-                    <h2 className="text-lg font-semibold">Messagerie</h2>
+                    <h2 className="text-lg font-semibold">{t('messages')}</h2>
                     <input
-                        placeholder="Rechercher une conversation…"
+                        placeholder={t('searchConversationPlaceholder')}
                         className="mt-3 h-10 w-full rounded-lg border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                 </div>
@@ -89,11 +91,11 @@ export default function MessagesPage() {
                 {/* En-tête fil */}
                 <div className="flex items-center justify-between border-b px-5 py-3">
                     <div>
-                        <div className="text-sm text-gray-500">Conversation</div>
+                        <div className="text-sm text-gray-500">{t('conversation')}</div>
                         <div className="text-lg font-semibold">{conv.name}</div>
                     </div>
                     <button className="rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-50">
-                        Infos
+                        {t('infos')}
                     </button>
                 </div>
 
@@ -109,7 +111,7 @@ export default function MessagesPage() {
                                     title={new Date(m.sentAt).toLocaleString()}
                                 >
                                     <div className="mb-0.5 text-[11px] opacity-70">
-                                        {mine ? "Vous" : m.from}
+                                        {mine ? t('you') : m.from}
                                     </div>
                                     <div>{m.content}</div>
                                 </div>
@@ -123,14 +125,14 @@ export default function MessagesPage() {
                     <input
                         value={draft}
                         onChange={(e) => setDraft(e.target.value)}
-                        placeholder="Écrire un message…"
+                        placeholder={t('writeMessagePlaceholder')}
                         className="h-11 flex-1 rounded-full border border-gray-300 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                     <button
                         onClick={send}
                         className="h-11 rounded-full bg-indigo-600 px-5 text-white hover:bg-indigo-700"
                     >
-                        Envoyer
+                        {t('send')}
                     </button>
                 </div>
             </main>

@@ -16,6 +16,7 @@ import {
   Cell,
   Legend,
 } from "recharts";
+import { useI18n } from "@/app/context/i18n";
 
 /* ---------------------------------------------
    MOCKS alignés avec la base
@@ -54,6 +55,7 @@ const ACTIVITY = [
 /* --------------------------------------------- */
 
 export default function Dashboard() {
+  const { t } = useI18n();
   const [search, setSearch] = useState("");
 
   // Exemples de KPIs (dérivés des mocks)
@@ -74,11 +76,11 @@ export default function Dashboard() {
   // Pie: statut des clients
   const customerStatusData = useMemo(
     () => [
-      { name: "Actifs", value: actifs },
-      { name: "Prospects", value: prospects },
-      { name: "Inactifs", value: totalClients - actifs - prospects },
+      { name: t('activePie'), value: actifs },
+      { name: t('prospectsPie'), value: prospects },
+      { name: t('inactivePie'), value: totalClients - actifs - prospects },
     ],
-    [actifs, prospects, totalClients]
+    [actifs, prospects, totalClients, t]
   );
 
   const COLORS = ["#16A34A", "#64748B", "#EF4444"]; // green, slate, red
@@ -90,8 +92,8 @@ export default function Dashboard() {
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500">Bienvenue, Evan !</p>
-            <h1 className="text-2xl font-semibold">Tableau de bord</h1>
+            <p className="text-sm text-gray-500">{t('welcome')}</p>
+            <h1 className="text-2xl font-semibold">{t('dashboard')}</h1>
           </div>
 
           <div className="flex items-center gap-3">
@@ -99,7 +101,7 @@ export default function Dashboard() {
               <Search className="absolute left-3 top-3 text-gray-400" size={18} />
               <Input
                 type="text"
-                placeholder="Rechercher (clients, projets, tâches)…"
+                placeholder={t('searchDashboardPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-10"
@@ -107,17 +109,17 @@ export default function Dashboard() {
             </div>
             <Button variant="outline" size="sm" className="gap-2">
               <CalIcon className="h-4 w-4" />
-              Semaine en cours
+              {t('currentWeek')}
             </Button>
           </div>
         </div>
 
         {/* KPIs */}
         <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="Clients (total)" value={String(totalClients)} change="+3 cette semaine" />
-          <StatCard title="Clients actifs" value={String(actifs)} change="+1" />
-          <StatCard title="Prospects" value={String(prospects)} change="+2" />
-          <StatCard title="Événements à venir" value={String(EVENTS.length)} change="Moins 1 vs hier" />
+          <StatCard title={t('totalClients')} value={String(totalClients)} change="+3 cette semaine" />
+          <StatCard title={t('activeClients')} value={String(actifs)} change="+1" />
+          <StatCard title={t('prospects')} value={String(prospects)} change="+2" />
+          <StatCard title={t('upcomingEvents')} value={String(EVENTS.length)} change="Moins 1 vs hier" />
         </div>
 
         {/* Charts + colonnes droites comme sur la maquette */}
@@ -126,7 +128,7 @@ export default function Dashboard() {
           <div className="xl:col-span-2 grid grid-cols-1 gap-8 lg:grid-cols-2">
             {/* Courbe */}
             <div className="rounded-2xl border bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-semibold">Activité commerciale</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t('businessActivity')}</h2>
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={revenueData}>
                   <XAxis dataKey="month" stroke="#888" />
@@ -145,7 +147,7 @@ export default function Dashboard() {
 
             {/* Camembert */}
             <div className="rounded-2xl border bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-semibold">Statut des clients</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t('clientStatus')}</h2>
               <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie data={customerStatusData} dataKey="value" nameKey="name" outerRadius={100} label>
@@ -162,8 +164,8 @@ export default function Dashboard() {
             {/* Workload (cartes membres) */}
             <div className="rounded-2xl border bg-white p-6 shadow-sm lg:col-span-2">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Charge des équipes</h2>
-                <Button variant="ghost" size="sm">Voir tout</Button>
+                <h2 className="text-lg font-semibold">{t('teamWorkload')}</h2>
+                <Button variant="ghost" size="sm">{t('seeAll')}</Button>
               </div>
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {USERS.map((u) => (
@@ -173,7 +175,7 @@ export default function Dashboard() {
                     <div className="mt-3 h-2 w-full rounded-full bg-gray-200">
                       <div className="h-2 rounded-full bg-indigo-600" style={{ width: `${30 + Math.random() * 60}%` }} />
                     </div>
-                    <div className="mt-1 text-right text-xs text-gray-500">Charge estimée</div>
+                    <div className="mt-1 text-right text-xs text-gray-500">{t('estimatedLoad')}</div>
                   </div>
                 ))}
               </div>
@@ -182,8 +184,8 @@ export default function Dashboard() {
             {/* Projets (liste compacte – style Woorkroom) */}
             <div className="rounded-2xl border bg-white p-6 shadow-sm lg:col-span-2">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Projets</h2>
-                <Button variant="ghost" size="sm">Voir tout</Button>
+                <h2 className="text-lg font-semibold">{t('projects')}</h2>
+                <Button variant="ghost" size="sm">{t('seeAll')}</Button>
               </div>
               <ul className="divide-y">
                 {[
@@ -197,8 +199,8 @@ export default function Dashboard() {
                       <div className="text-xs text-gray-500">ID {p.id}</div>
                     </div>
                     <div className="text-right text-sm text-gray-600">
-                      <div>Toutes les tâches: <span className="font-medium text-gray-900">{p.tasks}</span></div>
-                      <div>Tâches actives: <span className="font-medium text-gray-900">{p.active}</span></div>
+                      <div>{t('allTasks')}<span className="font-medium text-gray-900">{p.tasks}</span></div>
+                      <div>{t('activeTasks')}<span className="font-medium text-gray-900">{p.active}</span></div>
                     </div>
                   </li>
                 ))}
@@ -211,8 +213,8 @@ export default function Dashboard() {
             {/* Événements à venir */}
             <div className="rounded-2xl border bg-white p-6 shadow-sm">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Événements à venir</h2>
-                <Button variant="ghost" size="sm">Voir tout</Button>
+                <h2 className="text-lg font-semibold">{t('upcomingEvents')}</h2>
+                <Button variant="ghost" size="sm">{t('seeAll')}</Button>
               </div>
               <ul className="space-y-3">
                 {EVENTS.map((e) => (
@@ -229,8 +231,8 @@ export default function Dashboard() {
             {/* Flux d’activité */}
             <div className="rounded-2xl border bg-white p-6 shadow-sm">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Flux d’activité</h2>
-                <Button variant="ghost" size="sm">Voir plus</Button>
+                <h2 className="text-lg font-semibold">{t('activityFeed')}</h2>
+                <Button variant="ghost" size="sm">{t('seeMore')}</Button>
               </div>
               <ul className="space-y-3">
                 {ACTIVITY.map((a) => (

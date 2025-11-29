@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUserById, login } from "@/services/database/users";
+import { useQueryClient } from "@tanstack/react-query";
 import { AIInteraction } from "@/components/ui/ai-interaction";
 import { useUserStore } from "@/hooks/use-user-store";
-
+import { useI18n, translations } from "@/app/context/i18n";
 type Status = "idle" | "listening" | "processing" | "speaking";
 
 export default function AIPage() {
+  const { t } = useI18n();
   const [status, setStatus] = useState<Status>("idle");
   const [messages, setMessages] = useState<any[]>([]);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -88,8 +88,8 @@ export default function AIPage() {
         : "/audios/immediate_response_audio_english.mp3";
       
       const immediateMessage = language.toLowerCase().includes('french')
-        ? "D'accord, je suis en train de vérifier votre calendrier pour trouver un créneau disponible."
-        : "Okay, I'm checking your calendar to find an available slot.";
+        ? translations.fr.checkingCalendar
+        : translations.en.checkingCalendar;
 
       const immediateAudio = new Audio(immediateAudioFile);
       const immediateAudioPromise = new Promise<void>((resolve) => {
@@ -106,7 +106,7 @@ export default function AIPage() {
       const fetchPromise = fetch("/api/ai-workflow", {
         method: "POST",
         headers: { "Content-Type": "application/json" }, // Sending JSON now
-        body: JSON.stringify({ transcription }), // Sending transcription
+        body: JSON.stringify({ transcription, userId: user?.id }), // Sending transcription and userId
       }).then(async (res) => {
         if (!res.ok) throw new Error("Server error");
         const formData = await res.formData();
@@ -160,9 +160,9 @@ export default function AIPage() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center gap-10">
       <div className="text-center">
-        <h1 className="text-3xl font-bold">AI Assistant</h1>
+        <h1 className="text-3xl font-bold">{t('aiAssistantTitle')}</h1>
         <p className="text-gray-500">
-          Click the microphone to start a conversation.
+          {t('aiAssistantDescription')}
         </p>
       </div>
       <AIInteraction
@@ -175,4 +175,3 @@ export default function AIPage() {
     </div>
   );
 };
-

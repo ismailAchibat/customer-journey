@@ -1,24 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runAiWorkflow } from "@/services/ai-workflow";
-import { useUserStore } from "@/hooks/use-user-store";
 
 export async function POST(req: NextRequest) {
-  const user = useUserStore((state) => state.user);
   try {
-    const userId = user?.id || "user_002"; // adapt as needed or extract from auth
     const contentType = req.headers.get("content-type") || "";
 
     let result;
     if (contentType.includes("application/json")) {
-      const { transcription } = await req.json();
+      const { transcription, userId } = await req.json();
       result = await runAiWorkflow({
-        userId,
+        userId: userId || "user_002", // Fallback for safety
         transcription,
       });
     } else if (contentType.includes("audio")) {
+      // This path seems to be handled by /api/ai-workflow/start now
+      // Keeping it for now but may need cleanup
       const arrayBuffer = await req.arrayBuffer();
       result = await runAiWorkflow({
-        userId,
+        userId: "user_002", // No user context here
         audio: arrayBuffer,
         audioContentType: contentType,
       });

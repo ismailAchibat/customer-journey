@@ -3,8 +3,7 @@
 import { Mic, Send, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-
-type Status = "idle" | "listening" | "processing" | "speaking";
+import { useI18n } from "@/app/context/i18n";
 
 type Status = "idle" | "listening" | "processing" | "speaking";
 
@@ -25,6 +24,7 @@ export function AIInteraction({
   messages,
   className,
 }: AIInteractionProps) {
+  const { t } = useI18n();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export function AIInteraction({
             <div className="w-full h-full rounded-full border-4 border-gray-300 border-t-4 border-t-purple-500 animate-spin" />
             <div className="absolute inset-0 flex items-center justify-center">
               <p className="text-sm font-semibold text-purple-500">
-                Processing
+                {t('processing')}
               </p>
             </div>
           </div>
@@ -60,7 +60,7 @@ export function AIInteraction({
             <div className="absolute inset-0 rounded-full bg-green-500/20 animate-ping" />
             <div className="absolute inset-0 rounded-full bg-green-500/30 animate-pulse" />
             <div className="absolute inset-4 rounded-full bg-green-500 flex items-center justify-center">
-              <p className="text-sm font-semibold text-white">Speaking</p>
+              <p className="text-sm font-semibold text-white">{t('speaking')}</p>
             </div>
           </div>
         );
@@ -88,14 +88,14 @@ export function AIInteraction({
               className="px-6 py-2 rounded-full bg-green-500 text-white font-semibold flex items-center gap-2 hover:bg-green-600"
             >
               <Send className="w-5 h-5" />
-              Submit
+              {t('submit')}
             </button>
             <button
               onClick={onCancel}
               className="px-6 py-2 rounded-full bg-red-500 text-white font-semibold flex items-center gap-2 hover:bg-red-600"
             >
               <X className="w-5 h-5" />
-              Cancel
+              {t('cancel')}
             </button>
           </>
         )}

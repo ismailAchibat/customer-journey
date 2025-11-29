@@ -10,6 +10,7 @@ import {
   DialogTitle, DialogFooter
 } from "@/components/ui/dialog";
 import { addClient } from "@/services/database/clients";
+import { useI18n } from "@/app/context/i18n";
 
 // Type conforme à la DB
 type Client = {
@@ -57,6 +58,7 @@ const CLIENTS: Client[] = DB_CLIENTS.map((r) => ({
 
 
 export default function ClientsPage() {
+  const { t } = useI18n();
   const [search, setSearch] = useState("");
   const [sortNewest, setSortNewest] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -98,13 +100,13 @@ export default function ClientsPage() {
       <main className="flex-1 p-8">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Clients</h1>
+          <h1 className="text-2xl font-semibold">{t('clients')}</h1>
 
           <div className="relative w-72">
             <Search className="absolute left-3 top-3 text-gray-400" size={18} />
             <Input
               type="text"
-              placeholder="Rechercher (nom, email, société, pays, id)…"
+              placeholder={t('searchClientPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
@@ -116,21 +118,21 @@ export default function ClientsPage() {
         <div className="rounded-2xl border bg-white shadow-sm">
           <div className="flex items-center justify-between border-b px-6 py-4">
             <div>
-              <h2 className="text-lg font-semibold">Tous les clients</h2>
+              <h2 className="text-lg font-semibold">{t('allClients')}</h2>
               <p className="text-sm font-medium text-green-600">
-                {filtered.filter((c) => c.status === "actif").length} actifs
+                {filtered.filter((c) => c.status === "actif").length} {t('active')}
               </p>
             </div>
             <Dialog open={openDialog} onOpenChange={setOpenDialog}>
             <DialogTrigger asChild>
               <Button className="bg-indigo-600 text-white hover:bg-indigo-700">
-                Nouveau client
+                {t('newClient')}
               </Button>
             </DialogTrigger>
 
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Nouveau client</DialogTitle>
+                <DialogTitle>{t('newClient')}</DialogTitle>
               </DialogHeader>
 
               {/* Formulaire + appel à addClient */}
@@ -157,21 +159,21 @@ export default function ClientsPage() {
                     setOpenDialog(false);
                   } catch (err) {
                     console.error(err);
-                    alert("Erreur lors de l’ajout du client.");
+                    alert(t('addClientError'));
                   } finally {
                     setSaving(false);
                   }
                 }}
               >
-                <input name="name" className="h-10 rounded-lg border px-3" placeholder="Nom" required />
-                <input name="company" className="h-10 rounded-lg border px-3" placeholder="Société" />
-                <input name="phoneNumber" className="h-10 rounded-lg border px-3" placeholder="Téléphone" />
-                <input name="email" type="email" className="h-10 rounded-lg border px-3" placeholder="Email" />
-                <input name="country" className="h-10 rounded-lg border px-3" placeholder="Pays" />
+                <input name="name" className="h-10 rounded-lg border px-3" placeholder={t('name')} required />
+                <input name="company" className="h-10 rounded-lg border px-3" placeholder={t('company')} />
+                <input name="phoneNumber" className="h-10 rounded-lg border px-3" placeholder={t('phone')} />
+                <input name="email" type="email" className="h-10 rounded-lg border px-3" placeholder={t('email')} />
+                <input name="country" className="h-10 rounded-lg border px-3" placeholder={t('country')} />
                 <select name="status" className="h-10 rounded-lg border px-3" defaultValue="prospect">
-                  <option value="prospect">prospect</option>
-                  <option value="actif">actif</option>
-                  <option value="inactif">inactif</option>
+                  <option value="prospect">{t('prospect')}</option>
+                  <option value="actif">{t('activeStatus')}</option>
+                  <option value="inactif">{t('inactiveStatus')}</option>
                 </select>
 
                 <DialogFooter>
@@ -181,14 +183,14 @@ export default function ClientsPage() {
                     onClick={() => setOpenDialog(false)}
                     disabled={saving}
                   >
-                    Annuler
+                    {t('cancel')}
                   </Button>
                   <Button
                     type="submit"
                     disabled={saving}
                     className="bg-indigo-600 text-white hover:bg-indigo-700"
                   >
-                    {saving ? "Enregistrement..." : "Enregistrer"}
+                    {saving ? t('saving') : t('save')}
                   </Button>
                 </DialogFooter>
               </form>
@@ -200,7 +202,7 @@ export default function ClientsPage() {
               size="sm"
               onClick={() => setSortNewest((v) => !v)}
             >
-              Trier : {sortNewest ? "Plus récents" : "Plus anciens"}
+              {t('sortBy')} {sortNewest ? t('newest') : t('oldest')}
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
             
@@ -210,14 +212,14 @@ export default function ClientsPage() {
           <table className="w-full text-left text-sm">
             <thead className="bg-gray-100 text-gray-600">
               <tr>
-                <th className="px-6 py-3">ID</th>
-                <th className="px-6 py-3">Nom</th>
-                <th className="px-6 py-3">Société</th>
-                <th className="px-6 py-3">Téléphone</th>
-                <th className="px-6 py-3">Email</th>
-                <th className="px-6 py-3">Pays</th>
-                <th className="px-6 py-3">Créé le</th>
-                <th className="px-6 py-3 text-center">Statut</th>
+                <th className="px-6 py-3">{t('id')}</th>
+                <th className="px-6 py-3">{t('name')}</th>
+                <th className="px-6 py-3">{t('company')}</th>
+                <th className="px-6 py-3">{t('phone')}</th>
+                <th className="px-6 py-3">{t('email')}</th>
+                <th className="px-6 py-3">{t('country')}</th>
+                <th className="px-6 py-3">{t('createdAt')}</th>
+                <th className="px-6 py-3 text-center">{t('status')}</th>
               </tr>
             </thead>
             <tbody>

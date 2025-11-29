@@ -7,10 +7,14 @@ import { useUserStore } from "@/hooks/use-user-store";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import { useI18n } from "@/app/context/i18n";
+import { LanguageSwitcher } from "../ui/language-switcher";
+
 const Sidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { setUser } = useUserStore();
+  const { t } = useI18n();
 
   const handleLogout = async () => {
     try {
@@ -23,17 +27,16 @@ const Sidebar = () => {
     }
   };
 
-  // === Navigation adaptée au projet Customer Journey ===
   const items = [
-    { label: "Tableau de bord", path: "/dashboard", icon: "/icons/dashboard.png" },
-    { label: "Clients", path: "/clients", icon: "/icons/clients.png" },
-    { label: "Utilisateurs", path: "/users", icon: "/icons/users.png" },
-    { label: "Messagerie", path: "/messages", icon: "/icons/message.png" },
-    { label: "Agenda", path: "/agenda", icon: "/icons/calendar.png" },
-    { label: "Projets", path: "/projects", icon: "/icons/projects.png" },
-    { label: "Assistant IA", path: "/ai-assistant", icon: "/icons/ai.png" },
-    { label: "Paramètres", path: "/settings", icon: "/icons/settings.png" },
-    { label: "Aide", path: "/help", icon: "/icons/help.png" },
+    { label: t('dashboard'), path: "/dashboard", icon: "/icons/dashboard.png" },
+    { label: t('clients'), path: "/clients", icon: "/icons/clients.png" },
+    { label: t('users'), path: "/users", icon: "/icons/users.png" },
+    { label: t('messages'), path: "/messages", icon: "/icons/message.png" },
+    { label: t('agenda'), path: "/agenda", icon: "/icons/calendar.png" },
+    { label: t('projects'), path: "/projects", icon: "/icons/projects.png" },
+    { label: t('aiAssistant'), path: "/ai-assistant", icon: "/icons/ai.png" },
+    { label: t('settings'), path: "/settings", icon: "/icons/settings.png" },
+    { label: t('help'), path: "/help", icon: "/icons/help.png" },
   ];
 
   return (
@@ -77,17 +80,20 @@ const Sidebar = () => {
             E
           </div>
           <div>
-            <p className="font-semibold text-gray-900">Evano</p>
-            <p className="text-sm text-gray-500">Chef de projet</p>
+            <p className="font-semibold text-gray-900">{t('evano')}</p>
+            <p className="text-sm text-gray-500">{t('projectManager')}</p>
           </div>
         </Link>
+        <div className="mt-2">
+          <LanguageSwitcher />
+        </div>
         <Button
           variant="ghost"
           className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50 mt-2"
           onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4" />
-          Se deconnecter
+          {t('logout')}
         </Button>
       </div>
     </aside>

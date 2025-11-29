@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useI18n } from "@/app/context/i18n";
 
 // Schéma Users conforme à ta base
 type User = {
@@ -54,6 +55,7 @@ const MOCK_USERS: User[] = [
 ];
 
 export default function UsersPage() {
+  const { t } = useI18n();
   const [q, setQ] = useState("");
 
   const users = useMemo(() => {
@@ -73,13 +75,13 @@ export default function UsersPage() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Utilisateurs</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">{t('users')}</h1>
           <p className="text-sm text-gray-500">
-            Gérez les membres, leurs rôles et les organisations associées.
+            {t('manageUsersDescription')}
           </p>
         </div>
         <button className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
-          Ajouter un utilisateur
+          {t('addUser')}
         </button>
       </div>
 
@@ -88,11 +90,11 @@ export default function UsersPage() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Rechercher un utilisateur, rôle ou organisation…"
+          placeholder={t('searchUserPlaceholder')}
           className="h-10 w-full max-w-md rounded-lg border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <button className="rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">
-          Exporter
+          {t('export')}
         </button>
       </div>
 
@@ -101,13 +103,13 @@ export default function UsersPage() {
         <table className="min-w-full divide-y">
           <thead className="bg-gray-50">
             <tr>
-              <Th>ID</Th>
-              <Th>Nom complet</Th>
-              <Th>Email</Th>
-              <Th>Rôle</Th>
-              <Th>Organisation</Th>
-              <Th>Date d’inscription</Th>
-              <Th>Actions</Th>
+              <Th>{t('id')}</Th>
+              <Th>{t('fullName')}</Th>
+              <Th>{t('email')}</Th>
+              <Th>{t('role')}</Th>
+              <Th>{t('organization')}</Th>
+              <Th>{t('signupDate')}</Th>
+              <Th>{t('actions')}</Th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -122,10 +124,10 @@ export default function UsersPage() {
                 <Td>
                   <div className="flex gap-3">
                     <button className="text-indigo-600 hover:underline">
-                      Voir
+                      {t('view')}
                     </button>
                     <button className="text-gray-600 hover:underline">
-                      Modifier
+                      {t('edit')}
                     </button>
                   </div>
                 </Td>

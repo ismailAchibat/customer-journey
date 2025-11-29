@@ -2,6 +2,7 @@
 import { Event, EventManager } from "@/components/shared/event-manager";
 import { useUserStore } from "@/hooks/use-user-store";
 import { useQuery } from "@tanstack/react-query";
+import { useI18n } from "@/app/context/i18n";
 
 const colors = [
   "blue", "purple", "green", "orange", "pink", "red", "teal", "cyan", "indigo"
@@ -11,6 +12,7 @@ const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
 
 export default function AgendaPage() {
   const user = useUserStore((state) => state.user);
+  const { t } = useI18n();
 
   const { data: eventsData, isLoading, error } = useQuery({
     queryKey: ["calendarEvents", user?.id],
@@ -22,7 +24,7 @@ export default function AgendaPage() {
       }
       return res.json();
     },
-    enabled: !!user?.id, // Only run the query if the user ID exists
+    enabled: !!user?.id,
   });
 
   const mappedEvents: Event[] = eventsData
@@ -40,12 +42,12 @@ export default function AgendaPage() {
 
         return {
           id: event.id,
-          title: event.subject ?? "No Title",
+          title: event.subject ?? t('noTitle'),
           description: event.client_name ?? "",
           startTime,
           endTime,
           color: getRandomColor(),
-          category: "Meeting",
+          category: t('meeting'),
           attendees: event.client_name ? [event.client_name] : [],
           tags: [],
         };
@@ -53,10 +55,9 @@ export default function AgendaPage() {
     : [];
 
   if (!user) {
-    // You might want a better loading state or a redirect to login
     return (
       <div className="container mx-auto p-4 sm:p-6">
-        <div>Please log in to see your agenda.</div>
+        <div>{t('pleaseLoginAgenda')}</div>
       </div>
     );
   }
@@ -64,7 +65,7 @@ export default function AgendaPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto p-4 sm:p-6">
-        <div>Loading agenda...</div>
+        <div>{t('loadingAgenda')}</div>
       </div>
     );
   }
@@ -72,10 +73,13 @@ export default function AgendaPage() {
   if (error) {
     return (
       <div className="container mx-auto p-4 sm:p-6">
-        <div>Error fetching events: {(error as Error).message}</div>
+        <div>{t('errorFetchingEvents')}{(error as Error).message}</div>
       </div>
     );
   }
+
+  const categories = ["meeting", "task", "reminder", "personal"].map(key => t(key));
+  const availableTags = ["important", "urgent", "work", "personal", "team", "client"].map(key => t(key));
 
   return (
     <div className="container mx-auto p-4 sm:p-6">
@@ -84,8 +88,8 @@ export default function AgendaPage() {
         onEventCreate={(event) => console.log("Created:", event)}
         onEventUpdate={(id, event) => console.log("Updated:", id, event)}
         onEventDelete={(id) => console.log("Deleted:", id)}
-        categories={["Meeting", "Task", "Reminder", "Personal"]}
-        availableTags={["Important", "Urgent", "Work", "Personal", "Team", "Client"]}
+        categories={categories}
+        availableTags={availableTags}
         defaultView="month"
       />
     </div>

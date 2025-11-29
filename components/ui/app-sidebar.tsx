@@ -10,42 +10,45 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-
-// Menu items.
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-]
+import { LanguageSwitcher } from "./language-switcher";
+import { useI18n } from "@/app/context/i18n";
 
 export function AppSidebar() {
+  const { t } = useI18n();
+
+  const items = [
+    {
+      title: t('home'),
+      url: "#",
+      icon: Home,
+    },
+    {
+      title: t('inbox'),
+      url: "#",
+      icon: Inbox,
+    },
+    {
+      title: t('calendar'),
+      url: "#",
+      icon: Calendar,
+    },
+    {
+      title: t('search'),
+      url: "#",
+      icon: Search,
+    },
+    {
+      title: t('settings'),
+      url: "#",
+      icon: Settings,
+    },
+  ]
+
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('application')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
@@ -60,6 +63,12 @@ export function AppSidebar() {
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+            <SidebarGroupLabel>{t('language')}</SidebarGroupLabel>
+            <SidebarGroupContent>
+                <LanguageSwitcher />
+            </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
