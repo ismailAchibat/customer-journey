@@ -1,4 +1,7 @@
 import { addCalendarEvent, getCalendarEventsById } from "@/services/database/calendar";
+import { findClientByNameAndCompany } from "../database/clients";
+import { getUserById } from "../database/users";
+import { sendEmail } from "../email";
 
 const INTERNAL_API_BASE =
   process.env.INTERNAL_API_BASE ||
@@ -112,7 +115,7 @@ export async function runAiWorkflow(opts: {
     }
 
     // 1) Parse the user's voice command into minimal JSON
-    const parsePrompt = `Extract the calendar intent from this command as a JSON object with exactly these keys: subject, client_name, duration, language. "language" should be the detected language of the command (e.g., "English", "French"). Use ISO-like/simple values and keep values concise. Command: "${textCommand.replace(
+    const parsePrompt = `Extract the calendar intent from this command as a JSON object with exactly these keys: subject, client_name, client_company, duration, language. "language" should be the detected language of the command (e.g., "English", "French"). Use ISO-like/simple values and keep values concise. Command: "${textCommand.replace(
       /\"/g,
       '\\"'
     )}"`;
@@ -134,6 +137,21 @@ export async function runAiWorkflow(opts: {
         error: "Failed to parse intent JSON from Mistral response",
       };
 
+    let client = null;
+    // New step: find the client in DB
+    if (parsed.client_name) {
+      const organisation_id = "org_001"; // TODO: fetch from user profile
+      if (organisation_id) {
+        client = await findClientByNameAndCompany({
+          name: parsed.client_name,
+          company: parsed.client_company,
+          organisation_id,
+        });
+        console.log("[ai-workflow] looked up client in DB: " + parsed.client_name, parsed.client_company, organisation_id);
+        console.log("[ai-workflow] found client:", client);
+      }
+    }
+
     // 2) fetch calendar events
     const events = await getCalendarEventsById(userId).catch((e: any) => []);
     console.log(
@@ -146,9 +164,9 @@ export async function runAiWorkflow(opts: {
     // 3) Ask Mistral to pick a date/time and return a confirmatory JSON + natural response
     const calendarStr = JSON.stringify(events.slice(0, 30));
     const language = parsed.language || "French";
-    const schedulePrompt = `You are given an intent JSON and the user's upcoming calendar events (as JSON array). Choose the next available slot that fits the requested duration and return a JSON object with keys: natural_response, subject, client_name, date, time, duration. natural_response should be a short sentence confirming when you'll add the event and any relevant details. IMPORTANT: The natural_response MUST be written in ${language} and use common ${language} date/time expressions. Return ONLY the JSON object (no extra commentary). Intent: ${JSON.stringify(
+    const schedulePrompt = `You are given an intent JSON and the user's upcoming calendar events (as JSON array). Choose the next available slot that fits the requested duration and return a JSON object with keys: natural_response, subject, client_name, date, time, duration. natural_response should be a short sentence confirming when you'll add the event and any relevant details, and also mention that an automatic email has been sent to the client to inform him of the meeting details. IMPORTANT: The natural_response MUST be written in ${language} and use common ${language} date/time expressions. Return ONLY the JSON object (no extra commentary). Intent: ${JSON.stringify(
       parsed
-    )}; Events: ${calendarStr}. And pls it looks like you always give the wrong day of the week, so be sure to double-check that the day of week matches current date, TODAY IT'S SATURDAY 22 NOVEMBER 2025`;
+    )}; Events: ${calendarStr}. And pls it looks like you always give the wrong day of the week, so be sure to double-check that the day of week matches current date, TODAY IT'S SUNDAY 30 NOVEMBER 2025, SO THE MEETING SHOULD BE SCHEDULED TODAY OR LATER.`;
 
     const scheduleContent = await callMistral(schedulePrompt);
     console.log("[ai-workflow] scheduleContent from Mistral:", scheduleContent);
@@ -168,7 +186,7 @@ export async function runAiWorkflow(opts: {
         error: "Failed to parse scheduling JSON from Mistral response",
       };
 
-    const addToCalendarTable = addCalendarEvent({
+    const addToCalendarTable = await addCalendarEvent({
       subject: finalJson.subject,
       client_name: finalJson.client_name,
       date: finalJson.date,
@@ -176,7 +194,7 @@ export async function runAiWorkflow(opts: {
       duration: finalJson.duration,
     })
 
-    console.log("[ai-workflow] added event to calendar Table:", addToCalendarTable);
+    console.log("[ai-workflow] added event to calendar Table: " + addToCalendarTable);
 
     // 4) Convert natural_response to speech
     const natural =
@@ -190,6 +208,20 @@ export async function runAiWorkflow(opts: {
       "[ai-workflow] audioBuffer length:",
       audioBuffer?.byteLength ?? 0
     );
+
+    // Send confirmation email
+    if (client && client.email) {
+      console.log(`[ai-workflow] Sending email to ${client.email}`);
+      await sendEmail({
+        client_name: finalJson.client_name,
+        date: finalJson.date,
+        time: finalJson.time,
+        subject: finalJson.subject,
+        duration: finalJson.duration,
+      }, client.email);
+    } else {
+      console.log("[ai-workflow] Skipping email: client or client email not found.");
+    }
 
     return {
       ok: true,

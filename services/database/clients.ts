@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { clients } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 export const getClientsByOrgID = async (org_id: string) => {
   const events = await db
@@ -16,6 +16,37 @@ export const getClientsByOrgID = async (org_id: string) => {
   return events;
 };
 
+export const findClientByNameAndCompany = async ({
+  name,
+  company,
+  organisation_id,
+}: {
+  name: string;
+  company?: string;
+  organisation_id: string;
+}) => {
+  const conditions = [
+    eq(clients.organisation_id, organisation_id),
+    sql`similarity(${clients.name}, ${name}) > 0.3`,
+  ];
+
+  if (company && company.trim() !== "") {
+    conditions.push(sql`similarity(${clients.company}, ${company}) > 0.3`);
+  }
+
+  const foundClient = await db
+    .select()
+    .from(clients)
+    .where(and(...conditions))
+    .orderBy(
+      company && company.trim() !== ""
+        ? sql`similarity(${clients.company}, ${company}) desc`
+        : sql`similarity(${clients.name}, ${name}) desc`
+    )
+    .limit(1);
+  
+  return foundClient[0] || null;
+}
 
 export const addClient = async ( client: {
   name: string;
