@@ -11,7 +11,10 @@ export async function middleware(req: NextRequest) {
 
   try {
     // Verify the JWT
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET || "your-super-secret-jwt-key-with-at-least-32-characters");
+    const secret = new TextEncoder().encode(
+      process.env.JWT_SECRET ||
+        "your-super-secret-jwt-key-with-at-least-32-characters"
+    );
     await jose.jwtVerify(sessionCookie.value, secret);
 
     // If token is valid, proceed
@@ -33,5 +36,8 @@ export const config = {
   // - _next/image (image optimization files)
   // - favicon.ico (favicon file)
   // - login (the login page itself)
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|login).*)"],
+  // - public assets (png, jpg, svg, etc.)
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|login|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|mp3|wav|ogg|mp4|webm|txt|json|xml|csv|woff|woff2|ttf|otf)).*)",
+  ],
 };

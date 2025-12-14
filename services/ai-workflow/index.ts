@@ -166,7 +166,7 @@ export async function runAiWorkflow(opts: {
     const language = parsed.language || "French";
     const schedulePrompt = `You are given an intent JSON and the user's upcoming calendar events (as JSON array). Choose the next available slot that fits the requested duration and return a JSON object with keys: natural_response, subject, client_name, date, time, duration. natural_response should be a short sentence confirming when you'll add the event and any relevant details, and also mention that an automatic email has been sent to the client to inform him of the meeting details. IMPORTANT: The natural_response MUST be written in ${language} and use common ${language} date/time expressions. Return ONLY the JSON object (no extra commentary). Intent: ${JSON.stringify(
       parsed
-    )}; Events: ${calendarStr}. And pls it looks like you always give the wrong day of the week, so be sure to double-check that the day of week matches current date, TODAY IT'S SUNDAY 30 NOVEMBER 2025, SO THE MEETING SHOULD BE SCHEDULED TODAY OR LATER.`;
+    )}; Events: ${calendarStr}. And pls it looks like you always give the wrong day of the week, so be sure to double-check that the day of week matches current date, TODAY IT'S WEDNSDAY 17 DECEMBER 2025, SO THE MEETING SHOULD BE SCHEDULED TODAY OR LATER.`;
 
     const scheduleContent = await callMistral(schedulePrompt);
     console.log("[ai-workflow] scheduleContent from Mistral:", scheduleContent);

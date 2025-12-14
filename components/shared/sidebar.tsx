@@ -4,7 +4,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useUserStore } from "@/hooks/use-user-store";
-import { LogOut } from "lucide-react";
+import {
+  Bot,
+  Calendar,
+  FolderKanban,
+  HelpCircle,
+  LayoutDashboard,
+  LogOut,
+  MessageSquare,
+  Settings,
+  Users,
+  BriefcaseBusiness,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { useI18n } from "@/app/context/i18n";
@@ -27,16 +39,16 @@ const Sidebar = () => {
     }
   };
 
-  const items = [
-    { label: t('dashboard'), path: "/dashboard", icon: "/icons/dashboard.png" },
-    { label: t('clients'), path: "/clients", icon: "/icons/clients.png" },
-    { label: t('users'), path: "/users", icon: "/icons/users.png" },
-    { label: t('messages'), path: "/messages", icon: "/icons/message.png" },
-    { label: t('agenda'), path: "/agenda", icon: "/icons/calendar.png" },
-    { label: t('projects'), path: "/projects", icon: "/icons/projects.png" },
-    { label: t('aiAssistant'), path: "/ai-assistant", icon: "/icons/ai.png" },
-    { label: t('settings'), path: "/settings", icon: "/icons/settings.png" },
-    { label: t('help'), path: "/help", icon: "/icons/help.png" },
+  const items: { label: string; path: string; icon: LucideIcon }[] = [
+    { label: t("dashboard"), path: "/dashboard", icon: LayoutDashboard },
+    { label: t("clients"), path: "/clients", icon: BriefcaseBusiness },
+    { label: t("users"), path: "/users", icon: Users },
+    { label: t("messages"), path: "/messages", icon: MessageSquare },
+    { label: t("agenda"), path: "/agenda", icon: Calendar },
+    { label: t("projects"), path: "/projects", icon: FolderKanban },
+    { label: t("aiAssistant"), path: "/ai-assistant", icon: Bot },
+    { label: t("settings"), path: "/settings", icon: Settings },
+    { label: t("help"), path: "/help", icon: HelpCircle },
   ];
 
   return (
@@ -52,7 +64,9 @@ const Sidebar = () => {
               height={36}
               className="rounded-lg"
             />
-            <span className="text-2xl font-bold text-gray-900">Customer Journey</span>
+            <span className="text-2xl font-bold text-gray-900">
+              Customer Journey
+            </span>
           </div>
         </Link>
 
@@ -80,8 +94,8 @@ const Sidebar = () => {
             E
           </div>
           <div>
-            <p className="font-semibold text-gray-900">{t('evano')}</p>
-            <p className="text-sm text-gray-500">{t('projectManager')}</p>
+            <p className="font-semibold text-gray-900">{t("evano")}</p>
+            <p className="text-sm text-gray-500">{t("projectManager")}</p>
           </div>
         </Link>
         <div className="mt-2">
@@ -93,7 +107,7 @@ const Sidebar = () => {
           onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4" />
-          {t('logout')}
+          {t("logout")}
         </Button>
       </div>
     </aside>
@@ -110,25 +124,21 @@ function SidebarItem({
   onClick,
 }: {
   label: string;
-  icon: string;
+  icon: LucideIcon;
   active?: boolean;
   onClick: () => void;
 }) {
+  const Icon = icon;
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition ${active
+      className={`w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition ${
+        active
           ? "bg-indigo-100 text-indigo-700"
           : "text-gray-700 hover:bg-gray-100"
-        }`}
+      }`}
     >
-      <Image
-        src={icon}
-        alt={`${label} icon`}
-        width={18}
-        height={18}
-        className="opacity-80"
-      />
+      <Icon className="h-4 w-4 opacity-80" />
       {label}
     </button>
   );

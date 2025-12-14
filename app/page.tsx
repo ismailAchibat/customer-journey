@@ -10,18 +10,33 @@ export default function LandingPage() {
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-3">
-            <Image src="/logos.png" alt="Customer Journey" width={32} height={32} className="rounded-md" />
+            <Image
+              src="/logos.png"
+              alt="Customer Journey"
+              width={32}
+              height={32}
+              className="rounded-md"
+            />
             <span className="text-xl font-bold">Customer Journey</span>
           </Link>
 
           <nav className="hidden items-center gap-6 md:flex text-sm">
-            <Link href="#features" className="hover:text-indigo-600">Fonctionnalités</Link>
-            <Link href="#preview" className="hover:text-indigo-600">Aperçu</Link>
-            <Link href="#pricing" className="hover:text-indigo-600">Tarifs</Link>
+            <Link href="#features" className="hover:text-indigo-600">
+              Fonctionnalités
+            </Link>
+            <Link href="#preview" className="hover:text-indigo-600">
+              Aperçu
+            </Link>
+            <Link href="#pricing" className="hover:text-indigo-600">
+              Tarifs
+            </Link>
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link href="/login" className="rounded-lg px-4 py-2 text-sm hover:bg-gray-100">
+            <Link
+              href="/login"
+              className="rounded-lg px-4 py-2 text-sm hover:bg-gray-100"
+            >
               Connexion
             </Link>
             <Link
@@ -42,11 +57,13 @@ export default function LandingPage() {
               Nouveau • Assistant IA intégré
             </p>
             <h1 className="text-4xl font-bold leading-tight md:text-5xl">
-              Gérez vos relations clients <span className="text-indigo-600">intelligemment</span>.
+              Gérez vos relations clients{" "}
+              <span className="text-indigo-600">intelligemment</span>.
             </h1>
             <p className="mt-4 text-lg text-gray-600">
-              Un CRM moderne qui réunit fiches clients, messagerie interne et agenda — avec des
-              actions rapides en langage naturel pour créer tâches et événements.
+              Un CRM moderne qui réunit fiches clients, messagerie interne et
+              agenda — avec des actions rapides en langage naturel pour créer
+              tâches et événements.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -70,15 +87,20 @@ export default function LandingPage() {
           </div>
 
           <div className="relative">
-            {/* Remplace l’illustration par ton visuel */}
-            <Image
-              src="/illustrations/landing-hero.png"
-              alt="Illustration CRM"
-              width={720}
-              height={520}
-              className="mx-auto w-full rounded-2xl border shadow-sm"
-              priority
-            />
+            <div className="mx-auto flex w-full items-center justify-center rounded-2xl border bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-12 shadow-sm">
+              <div className="max-w-md text-center">
+                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-500">
+                  Aperçu visuel
+                </p>
+                <h3 className="mt-3 text-2xl font-bold text-gray-900">
+                  Votre flux, vos clients, vos tâches
+                </h3>
+                <p className="mt-3 text-sm text-gray-600">
+                  Ajoutez votre propre visuel ici. Nous affichons un panneau de
+                  remplacement tant que l’illustration n’est pas fournie.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -86,7 +108,9 @@ export default function LandingPage() {
       {/* Features */}
       <section id="features" className="bg-gray-50">
         <div className="mx-auto max-w-7xl px-6 py-16">
-          <h2 className="text-center text-3xl font-semibold">Tout ce qu’il faut pour votre équipe</h2>
+          <h2 className="text-center text-3xl font-semibold">
+            Tout ce qu’il faut pour votre équipe
+          </h2>
           <p className="mx-auto mt-2 max-w-2xl text-center text-gray-600">
             Centralisez vos données et gagnez du temps grâce à l’automatisation.
           </p>
@@ -121,10 +145,12 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-6 py-16">
           <div className="grid items-center gap-10 md:grid-cols-2">
             <div>
-              <h3 className="text-2xl font-semibold">Un tableau de bord clair</h3>
+              <h3 className="text-2xl font-semibold">
+                Un tableau de bord clair
+              </h3>
               <p className="mt-3 text-gray-600">
-                Suivez votre charge, vos projets, vos événements à venir et l’activité récente
-                en un coup d’œil.
+                Suivez votre charge, vos projets, vos événements à venir et
+                l’activité récente en un coup d’œil.
               </p>
               <ul className="mt-6 space-y-2 text-sm text-gray-700">
                 <li>• Statut des clients et pipeline</li>
@@ -139,13 +165,20 @@ export default function LandingPage() {
                 Voir un exemple de dashboard
               </Link>
             </div>
-            <Image
-              src="/illustrations/dashboard-preview.png"
-              alt="Aperçu du dashboard"
-              width={760}
-              height={520}
-              className="w-full rounded-2xl border shadow-sm"
-            />
+            <div className="flex h-full min-h-[320px] w-full items-center justify-center rounded-2xl border bg-gradient-to-br from-slate-50 via-white to-indigo-50 p-10 shadow-sm">
+              <div className="max-w-md text-center">
+                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-500">
+                  Capture manquante
+                </p>
+                <h3 className="mt-3 text-xl font-semibold text-gray-900">
+                  Ajoutez une capture de votre dashboard
+                </h3>
+                <p className="mt-3 text-sm text-gray-600">
+                  Placez votre image dans public/illustrations et mettez à jour
+                  le chemin si besoin.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -153,12 +186,18 @@ export default function LandingPage() {
       {/* Logos / Social proof */}
       <section className="bg-gray-50">
         <div className="mx-auto max-w-7xl px-6 py-12">
-          <p className="text-center text-sm text-gray-500">Ils nous font confiance</p>
-          <div className="mt-6 grid grid-cols-2 items-center justify-items-center gap-6 opacity-70 sm:grid-cols-4">
-            <Image src="/logos/brand-1.png" alt="Brand 1" width={120} height={40} />
-            <Image src="/logos/brand-2.png" alt="Brand 2" width={120} height={40} />
-            <Image src="/logos/brand-3.png" alt="Brand 3" width={120} height={40} />
-            <Image src="/logos/brand-4.png" alt="Brand 4" width={120} height={40} />
+          <p className="text-center text-sm text-gray-500">
+            Ils nous font confiance
+          </p>
+          <div className="mt-6 grid grid-cols-2 items-center justify-items-center gap-6 opacity-80 sm:grid-cols-4">
+            {["Helios", "Northwind", "Arcturus", "Bluehaven"].map((name) => (
+              <div
+                key={name}
+                className="flex h-12 w-32 items-center justify-center rounded-lg border bg-white text-sm font-semibold text-gray-600 shadow-sm"
+              >
+                {name}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -167,7 +206,9 @@ export default function LandingPage() {
       <section id="pricing" className="relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 py-16">
           <div className="rounded-3xl bg-indigo-600 px-8 py-12 text-center text-white">
-            <h3 className="text-2xl font-semibold">Prêt à améliorer votre relation client ?</h3>
+            <h3 className="text-2xl font-semibold">
+              Prêt à améliorer votre relation client ?
+            </h3>
             <p className="mt-2 text-indigo-100">
               Démarrez en quelques secondes et invitez votre équipe.
             </p>
@@ -192,11 +233,19 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-gray-600 md:flex-row">
-          <p>© {new Date().getFullYear()} Customer Journey. Tous droits réservés.</p>
+          <p>
+            © {new Date().getFullYear()} Customer Journey. Tous droits réservés.
+          </p>
           <div className="flex items-center gap-6">
-            <Link href="/legal/privacy" className="hover:text-indigo-600">Confidentialité</Link>
-            <Link href="/legal/terms" className="hover:text-indigo-600">Conditions</Link>
-            <Link href="/contact" className="hover:text-indigo-600">Contact</Link>
+            <Link href="/legal/privacy" className="hover:text-indigo-600">
+              Confidentialité
+            </Link>
+            <Link href="/legal/terms" className="hover:text-indigo-600">
+              Conditions
+            </Link>
+            <Link href="/contact" className="hover:text-indigo-600">
+              Contact
+            </Link>
           </div>
         </div>
       </footer>
