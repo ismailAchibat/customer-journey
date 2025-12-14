@@ -1,11 +1,15 @@
-import { addCalendarEvent, getCalendarEventsById } from "@/services/database/calendar";
+import {
+  addCalendarEvent,
+  getCalendarEventsById,
+} from "@/services/database/calendar";
 import { findClientByNameAndCompany } from "../database/clients";
 import { getUserById } from "../database/users";
 import { sendEmail } from "../email";
-
-const INTERNAL_API_BASE =
-  process.env.INTERNAL_API_BASE ||
-  `http://localhost:${process.env.PORT || 3000}`;
+import {
+  completeMistralPrompt,
+  transcribeAudio,
+  textToSpeech,
+} from "@/lib/ai-services";
 
 function extractFirstJson(text: string) {
   // crude: find first { ... } balanced braces and parse
@@ -29,49 +33,19 @@ function extractFirstJson(text: string) {
 }
 
 async function callStt(arrayBuffer: ArrayBuffer, contentType = "audio/wav") {
-  const url = `${INTERNAL_API_BASE}/api/stt`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "content-type": contentType,
-    },
-    body: arrayBuffer,
-  });
-  const json = await res.json();
-  // debug
-  console.log("[ai-workflow] callStt response:", json);
-  if (!json?.ok) throw new Error(`STT error: ${json?.error ?? "unknown"}`);
-  return json.text as string;
+  const text = await transcribeAudio(arrayBuffer, contentType);
+  console.log("[ai-workflow] callStt response:", text);
+  return text;
 }
 
 async function callMistral(prompt: string) {
-  const url = `${INTERNAL_API_BASE}/api/mistral`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt }),
-  });
-  const json = await res.json();
-  // debug
-  console.log("[ai-workflow] callMistral response:", json);
-  if (!json?.ok) throw new Error(`Mistral error: ${json?.error ?? "unknown"}`);
-  return json.content as string;
+  const content = await completeMistralPrompt(prompt);
+  console.log("[ai-workflow] callMistral response:", content);
+  return content;
 }
 
 async function callTts(text: string) {
-  const url = `${INTERNAL_API_BASE}/api/tts`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
-  });
-
-  if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`TTS error: ${res.status} - ${t}`);
-  }
-
-  const arrayBuffer = await res.arrayBuffer();
+  const arrayBuffer = await textToSpeech(text);
   console.log(
     "[ai-workflow] callTts returned audio bytes:",
     arrayBuffer?.byteLength ?? 0
@@ -147,7 +121,11 @@ export async function runAiWorkflow(opts: {
           company: parsed.client_company,
           organisation_id,
         });
-        console.log("[ai-workflow] looked up client in DB: " + parsed.client_name, parsed.client_company, organisation_id);
+        console.log(
+          "[ai-workflow] looked up client in DB: " + parsed.client_name,
+          parsed.client_company,
+          organisation_id
+        );
         console.log("[ai-workflow] found client:", client);
       }
     }
@@ -192,9 +170,11 @@ export async function runAiWorkflow(opts: {
       date: finalJson.date,
       time: finalJson.time,
       duration: finalJson.duration,
-    })
+    });
 
-    console.log("[ai-workflow] added event to calendar Table: " + addToCalendarTable);
+    console.log(
+      "[ai-workflow] added event to calendar Table: " + addToCalendarTable
+    );
 
     // 4) Convert natural_response to speech
     const natural =
@@ -212,15 +192,20 @@ export async function runAiWorkflow(opts: {
     // Send confirmation email
     if (client && client.email) {
       console.log(`[ai-workflow] Sending email to ${client.email}`);
-      await sendEmail({
-        client_name: finalJson.client_name,
-        date: finalJson.date,
-        time: finalJson.time,
-        subject: finalJson.subject,
-        duration: finalJson.duration,
-      }, client.email);
+      await sendEmail(
+        {
+          client_name: finalJson.client_name,
+          date: finalJson.date,
+          time: finalJson.time,
+          subject: finalJson.subject,
+          duration: finalJson.duration,
+        },
+        client.email
+      );
     } else {
-      console.log("[ai-workflow] Skipping email: client or client email not found.");
+      console.log(
+        "[ai-workflow] Skipping email: client or client email not found."
+      );
     }
 
     return {
@@ -239,7 +224,10 @@ export async function runAiWorkflow(opts: {
 export async function getLanguageAndTranscription(opts: {
   audio?: ArrayBuffer;
   audioContentType?: string;
-}): Promise<{ok: true, language: string, transcription: string} | {ok: false, error: string}> {
+}): Promise<
+  | { ok: true; language: string; transcription: string }
+  | { ok: false; error: string }
+> {
   try {
     const { audio, audioContentType } = opts;
     if (!audio) return { ok: false, error: "Missing audio" };
@@ -270,7 +258,7 @@ export async function getLanguageAndTranscription(opts: {
         error: "Failed to parse intent JSON from Mistral response",
       };
 
-    const language = parsed.language || 'French';
+    const language = parsed.language || "French";
 
     return { ok: true, language, transcription: textCommand };
   } catch (err: any) {
